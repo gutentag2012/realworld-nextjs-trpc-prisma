@@ -1,7 +1,7 @@
 import { ArticleListTabs } from '$/components/article/ArticleListTabs'
 import { FollowButton } from '$/components/social/FollowButton'
-import { Layout } from '$/pages/Layout'
 import { api, useIsLoggedIn } from '$/lib/api'
+import { Layout } from '$/pages/Layout'
 import { type NextPage } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -17,15 +17,27 @@ const Login: NextPage = () => {
     { username: decodeURIComponent(query.username as string) })
 
   // Check if this is the logged-in user's profile
-  const { data: { user: me }={} } = api.auth.me.useQuery(undefined, { enabled: !!isLoggedIn })
+  const { data: { user: me } = {} } = api.auth.me.useQuery(undefined, { enabled: !!isLoggedIn })
   const isOwnProfile = user?.username === me?.username
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <Layout>
+      <div className='profile-page'>
+        <div className='user-info'>
+          Loading profile...
+        </div>
+      </div>
+    </Layout>
   }
 
   if (!user) {
-    return <div>Not logged in</div>
+    return <Layout>
+      <div className='profile-page'>
+        <div className='user-info'>
+          You must be logged in to view this page.
+        </div>
+      </div>
+    </Layout>
   }
 
   return <Layout>

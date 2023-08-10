@@ -40,38 +40,36 @@ export const ArticleListTabs: FunctionComponent<Props> = ({ tabs, defaultTab, us
 
   const finalTags = useMemo(() => [...tabs, isTagSelected && selectedFeedType], [isTagSelected, selectedFeedType, tabs])
 
-  const { data: allArticles, isLoading: isLoadingAllArticles, refetch: refetchAll } = api.articles.getArticles.useQuery(
-    {
-      limit, offset, tag: isTagSelected
-                          ? selectedFeedType.replace('#', '')
-                          : undefined, favorited: selectedFeedType === 'favourite'
-                                                  ? username
-                                                  : undefined, author: selectedFeedType === 'personal'
-                                                                       ? username
-                                                                       : undefined,
-    },
-    { enabled: selectedFeedType !== 'feed' },
-  )
-  const { data: feedArticles, isLoading: isLoadingFeedArticles, isStale: isFeedArticlesStale, refetch: refetchFeed } = api.articles.getArticleFeed.useQuery(
-    { limit, offset },
-    { enabled: selectedFeedType === 'feed' && !!isLoggedIn },
-  )
+  const { data: allArticles, isLoading: isLoadingAllArticles, refetch: refetchAll } = api.articles.getArticles
+    .useQuery(
+      {
+        limit,
+        offset,
+        tag: isTagSelected ? selectedFeedType.replace('#', '') : undefined,
+        favorited: selectedFeedType === 'favourite' ? username : undefined,
+        author: selectedFeedType === 'personal' ? username : undefined,
+      },
+      { enabled: selectedFeedType !== 'feed' },
+    )
+  const { data: feedArticles, isLoading: isLoadingFeedArticles, refetch: refetchFeed } = api.articles.getArticleFeed
+    .useQuery(
+      { limit, offset },
+      { enabled: selectedFeedType === 'feed' && !!isLoggedIn },
+    )
 
-  const refetch = selectedFeedType === 'feed' ? refetchFeed : refetchAll
-
-  const [articles, isLoadingArticles] = useMemo(() => {
-    const articles = selectedFeedType !== 'feed' ? allArticles : feedArticles
-    const isLoading = selectedFeedType !== 'feed'
-                      ? isLoadingAllArticles
-                      : (isLoadingFeedArticles && !isFeedArticlesStale)
-    return [articles, isLoading]
-  }, [selectedFeedType, allArticles, feedArticles, isLoadingAllArticles, isLoadingFeedArticles, isFeedArticlesStale])
+  const { articles, isLoadingArticles, refetch } = useMemo(() => {
+    return {
+      articles: selectedFeedType !== 'feed' ? allArticles : feedArticles,
+      isLoadingArticles: selectedFeedType !== 'feed' ? isLoadingAllArticles : isLoadingFeedArticles,
+      refetch: selectedFeedType === 'feed' ? refetchFeed : refetchAll,
+    }
+  }, [selectedFeedType, allArticles, feedArticles, isLoadingAllArticles, isLoadingFeedArticles, refetchFeed, refetchAll])
 
   const articlePagination = useMemo(() => {
     if (!articles?.articlesCount) {
       return []
     }
-    const pageCount = Math.ceil(articles.articlesCount / pageSize)
+    const pageCount = Math.min(5, Math.ceil(articles.articlesCount / pageSize))
     return Array.from({ length: pageCount }, (_, i) => i + 1)
   }, [articles?.articlesCount])
 
@@ -85,6 +83,7 @@ export const ArticleListTabs: FunctionComponent<Props> = ({ tabs, defaultTab, us
           (finalTags.filter(Boolean) as Array<ArticleType>).map((feedType) => <li
             key={ feedType }
             className='nav-item'
+            data-testid={ `feed-type-${ feedType }` }
           >
             <QueryLink
               className={ `nav-link ${ feedType === selectedFeedType ? 'active' : '' }` }
@@ -98,7 +97,8 @@ export const ArticleListTabs: FunctionComponent<Props> = ({ tabs, defaultTab, us
     </div>
 
     {
-      !isLoadingArticles && !articles?.articles?.length && <div className="article-preview">No articles are here... yet.</div>
+      !isLoadingArticles && !articles?.articles?.length &&
+        <div className='article-preview'>No articles are here... yet.</div>
     }
     {
       isLoadingArticles ? <div>Loading...</div> : articles?.articles?.map(article => <ArticleListEntry
