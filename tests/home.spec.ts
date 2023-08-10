@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-// TODO Use fixtures for testing and not
+// TODO Use fixtures for testing and not live db data
 
 const testUser = {
     email: "test@user.com",
