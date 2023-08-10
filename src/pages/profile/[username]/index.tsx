@@ -3,6 +3,7 @@ import { FollowButton } from '$/components/social/FollowButton'
 import { Layout } from '$/pages/Layout'
 import { api, useIsLoggedIn } from '$/lib/api'
 import { type NextPage } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React from 'react'
@@ -34,14 +35,13 @@ const Login: NextPage = () => {
           <div className='row'>
             <div className='col-xs-12 col-md-10 offset-md-1'>
               {
-                user.image && <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */ }
-                      <img
-                          src={ user.image }
-                          alt={ 'Profile picture' }
-                          className='user-img'
-                      />
-                  </>
+                user.image && <Image
+                      src={ user.image }
+                      alt='Profile picture'
+                      className='user-img'
+                      width={ 100 }
+                      height={ 100 }
+                  />
               }
               <h4>{ user.username }</h4>
               <p>{ user.bio }</p>

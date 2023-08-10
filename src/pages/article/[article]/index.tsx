@@ -6,6 +6,7 @@ import { Layout } from '$/pages/Layout'
 import format from 'date-fns/format'
 import matter from 'gray-matter'
 import { type NextPage } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
@@ -229,11 +230,12 @@ const Article: NextPage = () => {
                   </div>
                   <div className='card-footer'>
                     {
-                      currentUser?.image &&
-                        <img
-                            alt={ currentUser.username + ' profile picture' }
+                      currentUser?.image && <Image
                             src={ currentUser.image }
+                            alt={ currentUser.username + ' profile picture' }
                             className='comment-author-img'
+                            width={ 30 }
+                            height={ 30 }
                         />
                     }
                     <button
@@ -266,12 +268,15 @@ const Article: NextPage = () => {
                           href={ `/profile/${ encodeURIComponent(comment.author.username) }` }
                           className='comment-author'
                         >
-                          {/* eslint-disable-next-line @next/next/no-img-element */ }
-                          <img
-                            src={ comment.author.image ?? '' }
-                            alt='Author profile picture'
-                            className='comment-author-img'
-                          />
+                          {
+                            comment.author.image && <Image
+                                  src={ comment.author.image }
+                                  alt='Author profile picture'
+                                  className='comment-author-img'
+                                  width={ 20 }
+                                  height={ 20 }
+                              />
+                          }
                         </Link>
                         &nbsp; &nbsp;
                         <Link

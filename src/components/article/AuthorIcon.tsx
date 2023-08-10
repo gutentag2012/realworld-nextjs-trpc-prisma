@@ -1,5 +1,6 @@
 import { type RouterOutputs } from '$/lib/api'
 import format from 'date-fns/format'
+import Image from 'next/image'
 import Link from 'next/link'
 import React, { type FunctionComponent } from 'react'
 
@@ -10,14 +11,21 @@ interface UserIconProps {
 
 type Props = UserIconProps
 
-export const AuthorIcon: FunctionComponent<Props> = ({ user, date }) => {
+export const AuthorIcon: FunctionComponent<Props> = ({
+                                                       user,
+                                                       date,
+                                                     }) => {
   return <>
     <Link href={ `/profile/${ encodeURIComponent(user?.username ?? '') }` }>
       {/* eslint-disable-next-line @next/next/no-img-element */ }
-      <img
-        src={ user?.image ?? '' }
-        alt='Author profile picture'
-      />
+      { user?.image &&
+          <Image
+              src={ user.image }
+              alt='Author profile picture'
+              width={ 32 }
+              height={ 32 }
+          />
+      }
     </Link>
     <div className='info'>
       <Link

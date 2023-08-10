@@ -3,6 +3,7 @@
 
 import { api, useIsLoggedIn } from '$/lib/api'
 import Head from 'next/head'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { type FunctionComponent, useEffect } from 'react'
@@ -27,7 +28,7 @@ export const Layout: FunctionComponent<Props> = ({ children, privateRoute, restr
   const { push, pathname } = useRouter()
 
   // Get current user
-  const { data: { user }={}, isLoading: isLoadingUser } = api.auth.me.useQuery(undefined, { enabled: !!isLoggedIn })
+  const { data: { user } = {}, isLoading: isLoadingUser } = api.auth.me.useQuery(undefined, { enabled: !!isLoggedIn })
 
   // If this is a private route and the user is not logged in, redirect to the login page
   useEffect(() => {
@@ -85,14 +86,13 @@ export const Layout: FunctionComponent<Props> = ({ children, privateRoute, restr
                 href={ '/profile/' + encodeURIComponent(user.username) }
               >
                 {
-                  user.image && <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */ }
-                        <img
-                            src={ user.image }
-                            alt={ 'Profile picture' }
-                            className='user-pic'
-                        />
-                    </>
+                  user.image && <Image
+                        src={ user.image }
+                        alt='Profile picture'
+                        className='user-pic'
+                        width={ 26 }
+                        height={ 26 }
+                    />
                 }
                 { user.username }
               </Link>
