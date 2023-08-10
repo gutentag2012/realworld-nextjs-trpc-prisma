@@ -2,7 +2,8 @@ import ArticleListEntry from '$/components/article/ArticleListEntry'
 import { QueryLink } from '$/components/util/QueryLink'
 import { api, useIsLoggedIn } from '$/lib/api'
 import { useSearchParams } from 'next/navigation'
-import { type FunctionComponent, useMemo } from 'react'
+import { useRouter } from 'next/router'
+import { type FunctionComponent, useEffect, useMemo } from 'react'
 
 const pageSize = 5
 const ArticleTypes = {
@@ -29,6 +30,7 @@ type Props = ArticleListTabsProps
 export const ArticleListTabs: FunctionComponent<Props> = ({ tabs, defaultTab, username, className, toggleClassName }) => {
   const searchParams = useSearchParams()
   const isLoggedIn = useIsLoggedIn()
+  const { pathname, query: currentQuery, push } = useRouter()
 
   const [selectedFeedType, limit, offset, isTagSelected] = useMemo(() => {
     const selectedFeedType = searchParams.get('feedType') ?? defaultTab
@@ -57,24 +59,48 @@ export const ArticleListTabs: FunctionComponent<Props> = ({ tabs, defaultTab, us
       { enabled: selectedFeedType === 'feed' && !!isLoggedIn },
     )
 
-  const { articles, isLoadingArticles, refetch } = useMemo(() => {
-    return {
-      articles: selectedFeedType !== 'feed' ? allArticles : feedArticles,
-      isLoadingArticles: selectedFeedType !== 'feed' ? isLoadingAllArticles : isLoadingFeedArticles,
-      refetch: selectedFeedType === 'feed' ? refetchFeed : refetchAll,
-    }
-  }, [selectedFeedType, allArticles, feedArticles, isLoadingAllArticles, isLoadingFeedArticles, refetchFeed, refetchAll])
+  const { articles, isLoadingArticles, refetch } = useMemo(
+    () => {
+      return {
+        articles: selectedFeedType !== 'feed' ? allArticles : feedArticles,
+        isLoadingArticles: selectedFeedType !== 'feed' ? isLoadingAllArticles : isLoadingFeedArticles,
+        refetch: selectedFeedType === 'feed' ? refetchFeed : refetchAll,
+      }
+    },
+    [selectedFeedType, allArticles, feedArticles, isLoadingAllArticles, isLoadingFeedArticles, refetchFeed, refetchAll],
+  )
 
-  const articlePagination = useMemo(() => {
+  const articlePagination = useMemo<Array<number | '...'>>(() => {
     if (!articles?.articlesCount) {
       return []
     }
-    const pageCount = Math.min(5, Math.ceil(articles.articlesCount / pageSize))
-    return Array.from({ length: pageCount }, (_, i) => i + 1)
-  }, [articles?.articlesCount])
 
-  // TODO Fix bug, when you are on last page and then unfavorite an article, the page stays on the last page, even though it does not exist anymore
-  // TODO Do proper pagination with only showing the first 5 pages and the last 5 pages and the current page
+    const pageCount = Math.ceil(articles.articlesCount / limit)
+    if (pageCount <= 5) {
+      return Array.from({ length: pageCount }, (_, i) => i + 1)
+    }
+
+    if (offset <= 2) {
+      return [1, 2, 3, '...', pageCount]
+    }
+    if (offset > pageCount - 2) {
+      return [1, '...', pageCount - 2, pageCount - 1, pageCount]
+    }
+
+    return [1, offset > 3 && '...', offset - 1, offset, offset + 1, offset < pageCount - 2 && '...', pageCount]
+      .filter(Boolean) as Array<number | '...'>
+  }, [articles, limit, offset])
+
+  // This is used to go back a page in case the current page is empty because of a filter change
+  useEffect(() => {
+    if (!articles?.articles || !!articles.articles.length || offset <= 1) {
+      return
+    }
+
+    const finalQuery = { ...currentQuery, offset: offset - 1 }
+    push({ pathname, query: finalQuery })
+      .catch(console.error)
+  }, [articles, currentQuery, offset, pathname, push])
 
   return <div className={ className }>
     <div className={ toggleClassName }>
@@ -115,12 +141,19 @@ export const ArticleListTabs: FunctionComponent<Props> = ({ tabs, defaultTab, us
           key={ page }
           className={ `page-item ${ page === offset ? 'active' : '' }` }
         >
-          <QueryLink
-            className={ 'page-link' + (page === offset ? ' active' : '') }
-            query={ { offset: page.toString() } }
-          >
-            { page }
-          </QueryLink>
+          {
+            page === '...'
+            ? <span
+              className='page-link'
+              style={ { pointerEvents: 'none' } }
+            >...</span>
+            : <QueryLink
+              className={ 'page-link' + (page === offset ? ' active' : '') }
+              query={ { offset: page.toString() } }
+            >
+              { page }
+            </QueryLink>
+          }
         </li>)
       }
     </ul>

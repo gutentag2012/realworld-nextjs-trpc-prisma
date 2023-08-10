@@ -65,9 +65,10 @@ export const articleRouter = createTRPCRouter({
         },
       }
 
+      const skip = Math.max(0, ((input.offset ?? 1) - 1)) * input.limit
       const articles = await ctx.prisma.article.findMany({
         take: input.limit,
-        skip: ((input.offset ?? 1) - 1) * input.limit,
+        skip,
         orderBy: { createdAt: 'desc' },
         include: {
           author: { include: { followedByUsers: true } },
@@ -136,9 +137,11 @@ export const articleRouter = createTRPCRouter({
           },
         },
       } : true
+
+      const skip = Math.max(0, ((input.offset ?? 1) - 1)) * input.limit
       const articles = await ctx.prisma.article.findMany({
         take: input.limit,
-        skip: ((input.offset ?? 1) - 1),
+        skip,
         orderBy: { createdAt: 'desc' },
         include: {
           author: authorInclude,
