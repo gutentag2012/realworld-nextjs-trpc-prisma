@@ -1,25 +1,29 @@
-import { Layout } from '$/pages/Layout'
 import { api, setToken } from '$/lib/api'
+import { getErrorArrayFromTrpcResponseError } from '$/lib/errors'
+import { Layout } from '$/pages/Layout'
 import { type NextPage } from 'next'
+import { useRouter } from 'next/router'
 
 const Login: NextPage = () => {
   const ctx = api.useContext()
-  const { data: { user }={} } = api.auth.me.useQuery()
+  const { push } = useRouter()
+  const { data: { user } = {} } = api.auth.me.useQuery()
 
-  const {mutate: updateUser, error, isError, isLoading } = api.auth.updateUser.useMutation({onSuccess: () => ctx.auth.me.refetch()})
+  const { mutate: updateUser, error, isError, isLoading } = api.auth.updateUser.useMutation(
+    { onSuccess: () => ctx.auth.me.refetch() },
+  )
 
   if (!user) {
     return <Layout privateRoute>
-      Not logged in
+      <div className='settings-page'>
+        <div className='container page'>
+          Not logged in
+        </div>
+      </div>
     </Layout>
   }
 
-  const errors = !isError
-                 ? undefined
-                 : error?.data?.zodError?.fieldErrors
-                   ? Object.entries(error?.data?.zodError?.fieldErrors)
-                     .flatMap(([key, value]) => value?.map(v => `${ key }: ${ v }`))
-                   : [error?.message ?? 'Unknown error']
+  const errors = getErrorArrayFromTrpcResponseError(error, isError)
 
   return <Layout privateRoute>
     <div className='settings-page'>
@@ -51,7 +55,7 @@ const Login: NextPage = () => {
                     name={ 'image' }
                     placeholder='URL of profile picture'
                     disabled={ isLoading }
-                    defaultValue={ user.image ?? "" }
+                    defaultValue={ user.image ?? '' }
                   />
                 </fieldset>
                 <fieldset className='form-group'>
@@ -71,7 +75,7 @@ const Login: NextPage = () => {
                 placeholder='Short bio about you'
                 name={ 'bio' }
                 disabled={ isLoading }
-                defaultValue={ user.bio ?? "" }
+                defaultValue={ user.bio ?? '' }
               />
                 </fieldset>
                 <fieldset className='form-group'>
@@ -110,8 +114,9 @@ const Login: NextPage = () => {
               onClick={ () => {
                 setToken(null)
                 ctx.auth.me.reset()
-                  .then(() => console.log('reset'))
-                  .catch(err => console.error('reset', err))
+                  .catch(console.error)
+                push('/')
+                  .catch(console.error)
               } }
             >
               Or click here to logout.
