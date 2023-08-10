@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 /**
  * This is the client-side entrypoint for your tRPC API. It is used to create the `api` object which
@@ -9,11 +9,10 @@
 import type { AppRouter } from '$/server/api/routers'
 import { httpBatchLink, loggerLink } from '@trpc/client'
 import { createTRPCNext } from '@trpc/next'
-import { type inferRouterInputs, type inferRouterOutputs, inferRouterError } from '@trpc/server'
+import { inferRouterError, type inferRouterInputs, type inferRouterOutputs } from '@trpc/server'
 import { useEffect, useState } from 'react'
 import superjson from 'superjson'
 
-// TODO Not a good idea to store token in session storage
 export const setToken = (newToken: string | null) => {
   if (typeof window === 'undefined') { return }
   window.sessionStorage.setItem('token', newToken ?? '')
