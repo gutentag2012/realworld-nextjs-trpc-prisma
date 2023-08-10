@@ -1,4 +1,5 @@
 import { api, setToken, useIsLoggedIn } from '$/lib/api'
+import { getErrorArrayFromTrpcResponseError } from '$/lib/errors'
 import { type NextPage } from 'next'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -29,12 +30,7 @@ const Login: NextPage = () => {
     }, 0)
   }, [isSuccess, loginData, push])
 
-  const errors = !isError
-                 ? undefined
-                 : error?.data?.zodError?.fieldErrors
-                   ? Object.entries(error?.data?.zodError?.fieldErrors)
-                     .flatMap(([key, value]) => value?.map(v => `${ key }: ${ v }`))
-                   : [error?.message ?? 'Unknown error']
+  const errors = getErrorArrayFromTrpcResponseError(error, isError)
 
   return <div className='auth-page'>
     <div className='container page'>
@@ -71,6 +67,7 @@ const Login: NextPage = () => {
                 name='email'
                 placeholder='Email'
                 disabled={ isLoading }
+                data-testid="input-email"
               />
             </fieldset>
             <fieldset className='form-group'>
@@ -80,9 +77,10 @@ const Login: NextPage = () => {
                 name='password'
                 placeholder='Password'
                 disabled={ isLoading }
+                data-testid="input-password"
               />
             </fieldset>
-            <button className='btn btn-lg btn-primary pull-xs-right'>Sign in</button>
+            <button className='btn btn-lg btn-primary pull-xs-right' data-testid="btn-submit">Sign in</button>
           </form>
         </div>
       </div>
