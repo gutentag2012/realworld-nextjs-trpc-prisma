@@ -1,4 +1,5 @@
 import { api, setToken, useIsLoggedIn } from '$/lib/api'
+import { getErrorArrayFromTrpcResponseError } from '$/lib/errors'
 import { type NextPage } from 'next'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -36,12 +37,7 @@ const Login: NextPage = () => {
     }, 0)
   }, [isSuccess, loginData, push])
 
-  const errors = !isError
-                 ? undefined
-                 : error?.data?.zodError?.fieldErrors
-                   ? Object.entries(error?.data?.zodError?.fieldErrors)
-                     .flatMap(([key, value]) => value?.map(v => `${ key }: ${ v }`))
-                   : [error?.message ?? 'Unknown error']
+  const errors = getErrorArrayFromTrpcResponseError(error, isError)
 
   return <div className='auth-page'>
     <div className='container page'>
