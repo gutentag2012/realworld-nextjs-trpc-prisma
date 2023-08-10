@@ -9,7 +9,7 @@
 import type { AppRouter } from '$/server/api/routers'
 import { httpBatchLink, loggerLink } from '@trpc/client'
 import { createTRPCNext } from '@trpc/next'
-import { inferRouterError, type inferRouterInputs, type inferRouterOutputs } from '@trpc/server'
+import { type inferRouterError, type inferRouterOutputs } from '@trpc/server'
 import { useEffect, useState } from 'react'
 import superjson from 'superjson'
 
@@ -86,7 +86,7 @@ export const api = createTRPCNext<AppRouter>({
  *
  * @example type HelloInput = RouterInputs['example']['hello']
  */
-export type RouterInputs = inferRouterInputs<AppRouter>;
+// export type RouterInputs = inferRouterInputs<AppRouter>;
 
 export type RouterErrors = inferRouterError<AppRouter>;
 

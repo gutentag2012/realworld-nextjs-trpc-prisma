@@ -1,4 +1,6 @@
-const Prisma = require('@prisma/client')
+// noinspection NpmUsedModulesInstalled
+
+const Prisma = require('.prisma/client')
 const bcrypt = require('bcrypt')
 
 const prisma = new Prisma.PrismaClient()

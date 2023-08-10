@@ -1,7 +1,7 @@
 import { AuthorIcon } from '$/components/article/AuthorIcon'
 import { FavoriteButton } from '$/components/social/FavoriteButton'
 import { FollowButton } from '$/components/social/FollowButton'
-import { api, RouterOutputs } from '$/lib/api'
+import { api, type RouterOutputs } from '$/lib/api'
 import { Layout } from '$/pages/Layout'
 import format from 'date-fns/format'
 import matter from 'gray-matter'

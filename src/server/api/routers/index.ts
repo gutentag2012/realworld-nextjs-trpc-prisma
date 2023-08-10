@@ -5,7 +5,6 @@ import { favoritesRouter } from '$/server/api/routers/favorites'
 import { profileRouter } from '$/server/api/routers/profile'
 import { tagsRouter } from '$/server/api/routers/tags'
 import { createTRPCRouter } from '$/server/api/trpc'
-import { inferProcedureOutput } from '@trpc/server'
 
 export const appRouter = createTRPCRouter({
   articles: articleRouter,

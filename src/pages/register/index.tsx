@@ -25,6 +25,7 @@ const Login: NextPage = () => {
     isError,
   } = api.auth.register.useMutation()
 
+  // noinspection DuplicatedCode
   useEffect(() => {
     if (!isSuccess || !loginData) {
       return

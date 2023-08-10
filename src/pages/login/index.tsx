@@ -14,10 +14,11 @@ const Login: NextPage = () => {
       push('/')
         .catch(console.error)
     }
-  }, [push])
+  }, [isLoggedIn, push])
 
   const { mutate: login, isSuccess, isLoading, data: loginData, error, isError } = api.auth.login.useMutation()
 
+  // noinspection DuplicatedCode
   useEffect(() => {
     if (!isSuccess || !loginData) {
       return

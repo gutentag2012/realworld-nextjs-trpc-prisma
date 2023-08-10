@@ -10,6 +10,9 @@ export const env = createEnv({
     DATABASE_URL: z.string().url(),
     NODE_ENV: z.enum(["development", "test", "production"]),
     JWT_SECRET: z.string(),
+    VERCEL_URL: z.string().optional(),
+    PORT: z.coerce.number().optional(),
+    CI: z.coerce.boolean().optional(),
   },
 
   /**
@@ -22,12 +25,15 @@ export const env = createEnv({
 
   /**
    * You can't destruct `process.env` as a regular object in the Next.js edge runtimes (e.g.
-   * middlewares) or client-side so we need to destruct manually.
+   * middlewares) or client-side, so we need to destruct manually.
    */
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     JWT_SECRET: process.env.JWT_SECRET,
+    VERCEL_URL: process.env.VERCEL_URL,
+    PORT: process.env.PORT,
+    CI: process.env.CI,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
