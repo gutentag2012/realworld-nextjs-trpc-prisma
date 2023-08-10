@@ -28,16 +28,16 @@ export const Layout: FunctionComponent<Props> = ({ children, privateRoute, restr
   const { push, pathname } = useRouter()
 
   // Get current user
-  const { data: { user } = {}, isLoading: isLoadingUser } = api.auth.me.useQuery(undefined, { enabled: !!isLoggedIn })
+  const { data: { user } = {}, isLoading } = api.auth.me.useQuery(undefined, { enabled: !!isLoggedIn })
 
   // If this is a private route and the user is not logged in, redirect to the login page
   useEffect(() => {
-    const isRestricted = restrictForUsername && user?.username !== restrictForUsername && !isLoadingUser
-    const isPrivateRoute = privateRoute && !isLoadingUser && !user
+    const isRestricted = restrictForUsername && user?.username !== restrictForUsername && !isLoading
+    const isPrivateRoute = privateRoute && (!isLoading && !user)
     if (!isRestricted && !isPrivateRoute) { return }
     push('/')
       .catch(console.error)
-  }, [push, privateRoute, isLoggedIn, restrictForUsername, user, isLoadingUser])
+  }, [push, privateRoute, isLoggedIn, restrictForUsername, user, isLoading])
 
   return <>
     <Head>
