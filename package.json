@@ -5,9 +5,10 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "postinstall": "prisma generate",
+    "start": "next start",
     "lint": "next lint",
-    "start": "next start"
+    "postinstall": "prisma generate && prisma db push",
+    "db:seed": "prisma seed"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.5",

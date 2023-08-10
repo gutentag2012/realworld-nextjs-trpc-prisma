@@ -15,9 +15,31 @@ For more information on how to this works with other frontends/backends, head ov
 
 # How it works
 
-> Describe the general architecture of your app here
+This project uses NextJS and its pages router to serve a React frontend. The backend utilizes tRPC, which usually does not expose a usable REST API, which is required by the RealWorld specs, therefor [trpc-openai](https://github.com/prosepilot/trpc-openapi) is used to create a REST API and also generate a Swagger UI.
+
+The database is managed by Prisma; for simplicity’s sake it uses a sqlite database, but it can be easily changed to any other database supported by Prisma.
+
+# Project Structure
+
+- `prisma` - The Prisma schema and sqlite database
+- `public` - Static assets
+- `src` - The NextJS application
+  - `components` - React components used in the pages
+  - `pages` - NextJS pages & api route setup
+  - `server` - Setup for the database and tRPC router
+  - `styles` - Official RealWorld css styles
+- `test` - Tests (includes the official RealWorld api postman tests)
 
 # Getting started
 
-> npm install, npm start, etc.
+Install all the dependencies, this will also set up the prisma sqlite database.
 
+```bash
+pnpm install
+```
+
+To run the application in development mode:
+
+```bash
+pnpm dev
+```
