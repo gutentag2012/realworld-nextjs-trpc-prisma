@@ -68,8 +68,7 @@ export const profileRouter = createTRPCRouter({
       },
     })
     .input(z.object({
-      username: z.string()
-        .transform(value => decodeURIComponent(value)),
+      username: z.string(),
     }))
     .output(z.object({ profile: profileSchema }))
     .mutation(async ({
@@ -105,16 +104,15 @@ export const profileRouter = createTRPCRouter({
       },
     })
     .input(z.object({
-      username: z.string()
-        .transform(value => decodeURIComponent(value)),
-    })) // TODO Check if it makes sense to open a PR for this
+      username: z.string(),
+    }))
     .output(z.object({ profile: profileSchema }))
     .mutation(async ({
                        input,
                        ctx,
                      }) => {
       const profile = await ctx.prisma.user.update({
-        where: { username: input.username },
+        where: { username: decodeURIComponent(input.username) },
         data: {
           followedByUsers: {
             disconnect: {
