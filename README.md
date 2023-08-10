@@ -28,7 +28,7 @@ The database is managed by Prisma; for simplicity’s sake it uses a sqlite data
   - `pages` - NextJS pages & api route setup
   - `server` - Setup for the database and tRPC router
   - `styles` - Official RealWorld css styles
-- `test` - Tests (includes the official RealWorld api postman tests)
+- `tests` - Tests (includes the official RealWorld api postman tests)
 
 # Getting started
 
