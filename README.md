@@ -34,6 +34,12 @@ Testing is done using Playwright for the Frontend und currently only the officia
 
 # Getting started
 
+Copy the example env to a real env file. To run the application you do not have to change anything, only if you want to use a different database or use a secure JWT secret.
+
+```bash
+cp .env.example .env
+```
+
 Install all the dependencies, this will also set up the prisma sqlite database.
 
 ```bash
