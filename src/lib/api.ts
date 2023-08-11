@@ -14,7 +14,9 @@ import { useEffect, useState } from 'react'
 import superjson from 'superjson'
 
 export const setToken = (newToken: string | null) => {
-  if (typeof window === 'undefined') { return }
+  if (typeof window === 'undefined') {
+    return
+  }
   window.sessionStorage.setItem('token', newToken ?? '')
 }
 
@@ -34,9 +36,9 @@ const getBaseUrl = () => {
     return ''
   } // browser should use relative url
   if (process.env.VERCEL_URL) {
-    return `https://${ process.env.VERCEL_URL }`
+    return `https://${process.env.VERCEL_URL}`
   } // SSR should use vercel url
-  return `http://localhost:${ process.env.PORT ?? 3000 }` // dev SSR should use localhost
+  return `http://localhost:${process.env.PORT ?? 3000}` // dev SSR should use localhost
 }
 
 /** A set of type-safe react-query hooks for your tRPC API. */
@@ -57,16 +59,15 @@ export const api = createTRPCNext<AppRouter>({
        */
       links: [
         loggerLink({
-          enabled: (opts) =>
-            process.env.NODE_ENV === 'development' ||
-            (opts.direction === 'down' && opts.result instanceof Error),
+          enabled: opts =>
+            process.env.NODE_ENV === 'development' || (opts.direction === 'down' && opts.result instanceof Error),
         }),
         httpBatchLink({
-          url: `${ getBaseUrl() }/api/trpc`,
+          url: `${getBaseUrl()}/api/trpc`,
           headers() {
             const token = (typeof window === 'undefined' ? null : window.sessionStorage.getItem('token')) ?? null
             return {
-              ...(token ? { Authorization: `Token ${ token }` } : {}),
+              ...(token ? { Authorization: `Token ${token}` } : {}),
             }
           },
         }),
@@ -88,11 +89,11 @@ export const api = createTRPCNext<AppRouter>({
  */
 // export type RouterInputs = inferRouterInputs<AppRouter>;
 
-export type RouterErrors = inferRouterError<AppRouter>;
+export type RouterErrors = inferRouterError<AppRouter>
 
 /**
  * Inference helper for outputs.
  *
  * @example type HelloOutput = RouterOutputs['example']['hello']
  */
-export type RouterOutputs = inferRouterOutputs<AppRouter>;
+export type RouterOutputs = inferRouterOutputs<AppRouter>

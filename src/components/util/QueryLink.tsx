@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { type FunctionComponent } from 'react'
 
-interface QueryLinkProps extends Omit<LinkProps, "href"> {
+interface QueryLinkProps extends Omit<LinkProps, 'href'> {
   query: Record<string, string | undefined>
   children: React.ReactNode
   className: string
@@ -16,7 +16,9 @@ export const QueryLink: FunctionComponent<Props> = ({ query, children, ...props 
 
   const finalQuery = { ...currentQuery, ...query }
 
-  return <Link href={ { pathname, query: finalQuery } } {...props}>
-    { children }
-  </Link>
+  return (
+    <Link href={{ pathname, query: finalQuery }} {...props}>
+      {children}
+    </Link>
+  )
 }

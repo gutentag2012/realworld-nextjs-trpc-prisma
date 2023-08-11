@@ -4,10 +4,8 @@ import { z } from 'zod'
 
 const commentSchema = z.object({
   id: z.number(),
-  createdAt: z.date()
-    .transform(d => d.toISOString()),
-  updatedAt: z.date()
-    .transform(d => d.toISOString()),
+  createdAt: z.date().transform(d => d.toISOString()),
+  updatedAt: z.date().transform(d => d.toISOString()),
   body: z.string(),
   author: profileSchema,
 })
@@ -24,16 +22,16 @@ export const commentsRouter = createTRPCRouter({
         description: 'Get the comments for an article. Auth is optional',
       },
     })
-    .input(z.object({ slug: z.string() }))
+    .input(z.object({ slug: z.string().nonempty() }))
     .output(z.object({ comments: z.array(commentSchema) }))
-    .query(async ({
-                    input,
-                    ctx,
-                  }) => {
+    .query(async opts => {
+      const { input, ctx } = opts
+
       const comments = await ctx.prisma.comment.findMany({
         where: { article: { slug: input.slug } },
         include: { author: true },
       })
+
       return { comments }
     }),
   addCommentToArticle: protectedProcedure
@@ -47,17 +45,18 @@ export const commentsRouter = createTRPCRouter({
         description: 'Create a comment for an article. Auth is required',
       },
     })
-    .input(z.object(({
-      slug: z.string(),
-      comment: z.object({
-        body: z.string(),
+    .input(
+      z.object({
+        slug: z.string().nonempty(),
+        comment: z.object({
+          body: z.string().nonempty(),
+        }),
       }),
-    })))
+    )
     .output(z.object({ comment: commentSchema }))
-    .mutation(async ({
-                       input,
-                       ctx,
-                     }) => {
+    .mutation(async opts => {
+      const { input, ctx } = opts
+
       const createdAt = new Date()
       const comment = await ctx.prisma.comment.create({
         data: {
@@ -69,6 +68,7 @@ export const commentsRouter = createTRPCRouter({
         },
         include: { author: true },
       })
+
       return { comment }
     }),
   removeCommentFromArticle: protectedProcedure
@@ -82,15 +82,16 @@ export const commentsRouter = createTRPCRouter({
         description: 'Delete a comment for an article. Auth is required',
       },
     })
-    .input(z.object({
-      slug: z.string(),
-      id: z.number(),
-    }))
+    .input(
+      z.object({
+        slug: z.string().nonempty(),
+        id: z.number(),
+      }),
+    )
     .output(z.void())
-    .mutation(async ({
-                       input,
-                       ctx,
-                     }) => {
+    .mutation(async opts => {
+      const { input, ctx } = opts
+
       await ctx.prisma.comment.delete({
         where: {
           id: input.id,

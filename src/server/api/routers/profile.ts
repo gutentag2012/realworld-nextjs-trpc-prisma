@@ -3,17 +3,11 @@ import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
 export const profileSchema = z.object({
-  id: z.string()
-    .optional(),
+  id: z.string().optional(),
   username: z.string(),
-  bio: z.string()
-    .nullish(),
-  image: z.string()
-    .url()
-    .nullish(),
-  following: z.boolean()
-    .nullish()
-    .default(false),
+  bio: z.string().nullish(),
+  image: z.string().url().nullish(),
+  following: z.boolean().nullish().default(false),
 })
 
 export const profileRouter = createTRPCRouter({
@@ -22,37 +16,38 @@ export const profileRouter = createTRPCRouter({
       openapi: {
         method: 'GET',
         path: '/profiles/{username}',
-        protect: true,  // Usually this should be false, but swagger does not send the auth header without
+        protect: true, // Usually this should be false, but swagger does not send the auth header without
         tags: ['Profile'],
         summary: 'Get a profile',
         description: 'Get a profile of a user of the system. Auth is optional',
       },
     })
-    .input(z.object({ username: z.string() }))
+    .input(z.object({ username: z.string().nonempty() }))
     .output(z.object({ profile: profileSchema }))
-    .query(async ({
-                    input,
-                    ctx,
-                  }) => {
+    .query(async opts => {
+      const { input, ctx } = opts
+
       const profile = await ctx.prisma.user.findUnique({
         where: { username: input.username },
-        include: ctx.user && {
+        include: {
           followedByUsers: {
             select: { id: true },
             where: { id: ctx.user?.id },
           },
         },
       })
+
       if (!profile) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Profile not found',
         })
       }
+
       return {
         profile: {
           ...profile,
-          following: !!ctx.user && profile.followedByUsers.length > 0,
+          following: profile.followedByUsers.length > 0,
         },
       }
     }),
@@ -67,14 +62,11 @@ export const profileRouter = createTRPCRouter({
         description: 'Follow a user by username',
       },
     })
-    .input(z.object({
-      username: z.string(),
-    }))
+    .input(z.object({ username: z.string().nonempty() }))
     .output(z.object({ profile: profileSchema }))
-    .mutation(async ({
-                       input,
-                       ctx,
-                     }) => {
+    .mutation(async opts => {
+      const { input, ctx } = opts
+
       const profile = await ctx.prisma.user.update({
         where: { username: input.username },
         data: {
@@ -85,6 +77,7 @@ export const profileRouter = createTRPCRouter({
           },
         },
       })
+
       return {
         profile: {
           ...profile,
@@ -103,16 +96,17 @@ export const profileRouter = createTRPCRouter({
         description: 'Unfollow a user by username',
       },
     })
-    .input(z.object({
-      username: z.string(),
-    }))
+    .input(
+      z.object({
+        username: z.string(),
+      }),
+    )
     .output(z.object({ profile: profileSchema }))
-    .mutation(async ({
-                       input,
-                       ctx,
-                     }) => {
+    .mutation(async opts => {
+      const { input, ctx } = opts
+
       const profile = await ctx.prisma.user.update({
-        where: { username: decodeURIComponent(input.username) },
+        where: { username: input.username },
         data: {
           followedByUsers: {
             disconnect: {
@@ -121,6 +115,7 @@ export const profileRouter = createTRPCRouter({
           },
         },
       })
+
       return {
         profile: {
           ...profile,

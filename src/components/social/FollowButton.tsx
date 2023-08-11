@@ -22,16 +22,19 @@ export const FollowButton: FunctionComponent<Props> = ({ isOwnProfile, user, onS
     return null
   }
 
-  return <button
-    className={ `btn btn-sm ${ user.following ? 'btn-secondary' : 'btn-outline-secondary' } action-btn` }
-    onClick={ () => {
-      if (!isLoggedIn) {
-        return push('/register')
-      }
-      const fn = user.following ? unfollow : follow
-      fn({ username: user.username })
-    } }
-  >
-    <i className='ion-plus-round' /> &nbsp;{ transformText((user.following ? 'Unfollow' : 'Follow') + ' ' + user.username) }
-  </button>
+  return (
+    <button
+      className={`btn btn-sm ${user.following ? 'btn-secondary' : 'btn-outline-secondary'} action-btn`}
+      onClick={() => {
+        if (!isLoggedIn) {
+          return push('/register')
+        }
+        const fn = user.following ? unfollow : follow
+        fn({ username: user.username })
+      }}
+    >
+      <i className="ion-plus-round" /> &nbsp;
+      {transformText((user.following ? 'Unfollow' : 'Follow') + ' ' + user.username)}
+    </button>
+  )
 }

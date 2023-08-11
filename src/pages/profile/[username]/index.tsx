@@ -12,82 +12,73 @@ const Login: NextPage = () => {
   const { query } = useRouter()
   const isLoggedIn = useIsLoggedIn()
 
-  // Get user to view profile
-  const { data: { profile: user } = {}, isLoading, refetch } = api.profiles.getProfileByName.useQuery(
-    { username: decodeURIComponent(query.username as string) })
+  const username = decodeURIComponent(query.username as string)
+
+  // Data
+  const { data: profileData, isLoading, refetch } = api.profiles.getProfileByName.useQuery({ username })
+  const profile = profileData?.profile
 
   // Check if this is the logged-in user's profile
   const { data: { user: me } = {} } = api.auth.me.useQuery(undefined, { enabled: !!isLoggedIn })
-  const isOwnProfile = user?.username === me?.username
+  const isOwnProfile = profile?.username === me?.username
 
   if (isLoading) {
-    return <Layout>
-      <div className='profile-page'>
-        <div className='user-info'>
-          Loading profile...
+    return (
+      <Layout>
+        <div className="profile-page">
+          <div className="user-info">Loading profile...</div>
         </div>
-      </div>
-    </Layout>
+      </Layout>
+    )
   }
 
-  if (!user) {
-    return <Layout>
-      <div className='profile-page'>
-        <div className='user-info'>
-          You must be logged in to view this page.
+  if (!profile) {
+    return (
+      <Layout>
+        <div className="profile-page">
+          <div className="user-info">You must be logged in to view this page.</div>
         </div>
-      </div>
-    </Layout>
+      </Layout>
+    )
   }
 
-  return <Layout>
-    <div className='profile-page'>
-      <div className='user-info'>
-        <div className='container'>
-          <div className='row'>
-            <div className='col-xs-12 col-md-10 offset-md-1'>
-              {
-                user.image && <Image
-                      src={ user.image }
-                      alt='Profile picture'
-                      className='user-img'
-                      width={ 100 }
-                      height={ 100 }
-                  />
-              }
-              <h4>{ user.username }</h4>
-              <p>{ user.bio }</p>
-              {
-                isOwnProfile && <Link
-                      href='/settings'
-                      className='btn btn-sm btn-outline-secondary action-btn'
-                  >
-                      <i className='ion-gear-a' /> Edit Profile Settings
+  return (
+    <Layout>
+      <div className="profile-page">
+        <div className="user-info">
+          <div className="container">
+            <div className="row">
+              <div className="col-xs-12 col-md-10 offset-md-1">
+                {profile.image && (
+                  <Image src={profile.image} alt="Profile picture" className="user-img" width={100} height={100} />
+                )}
+                <h4>{profile.username}</h4>
+                <p>{profile.bio}</p>
+                {isOwnProfile && (
+                  <Link href="/settings" className="btn btn-sm btn-outline-secondary action-btn">
+                    <i className="ion-gear-a" /> Edit Profile Settings
                   </Link>
-              }
-              <FollowButton
-                user={ user }
-                onSuccess={ refetch }
-                isOwnProfile={ isOwnProfile }
-              />
+                )}
+                <FollowButton user={profile} onSuccess={refetch} isOwnProfile={isOwnProfile} />
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className='container'>
-        <div className='row'>
-          <ArticleListTabs
-            className='col-xs-12 col-md-10 offset-md-1'
-            toggleClassName='articles-toggle'
-            tabs={ ['personal', 'favourite'] }
-            defaultTab='personal'
-            username={ query.username as string }
-          />
+        <div className="container">
+          <div className="row">
+            <ArticleListTabs
+              className="col-xs-12 col-md-10 offset-md-1"
+              toggleClassName="articles-toggle"
+              tabs={['personal', 'favourite']}
+              defaultTab="personal"
+              username={username}
+            />
+          </div>
         </div>
       </div>
-    </div>
-  </Layout>
+    </Layout>
+  )
 }
 
 export default Login

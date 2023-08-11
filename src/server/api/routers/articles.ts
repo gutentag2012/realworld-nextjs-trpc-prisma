@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 import { truthy } from '$/lib/types'
 import { profileSchema } from '$/server/api/routers/profile'
 import { tagsSchema } from '$/server/api/routers/tags'
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '$/server/api/trpc'
+import { type PrismaClient } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
@@ -12,27 +12,36 @@ export const articleSchema = z.object({
   title: z.string(),
   description: z.string(),
   body: z.string(),
-  tagList: z.array(tagsSchema)
+  tagList: z
+    .array(tagsSchema)
     .nullish()
     .transform((tags): Array<string> => {
       return tags?.map(tag => tag.value) ?? []
     }),
-  createdAt: z.date()
-    .transform(d => d.toISOString()),
-  updatedAt: z.date()
-    .transform(d => d.toISOString()),
+  createdAt: z.date().transform(d => d.toISOString()),
+  updatedAt: z.date().transform(d => d.toISOString()),
   favorited: z.boolean(),
   favoritesCount: z.number(),
   author: profileSchema,
 })
 
 const paginationInputSchema = z.object({
-  offset: z.number()
-    .optional(),
-  limit: z.number()
-    .optional()
-    .default(5),
+  offset: z.number().optional(),
+  limit: z.number().optional().default(5),
 })
+
+const articleListSchema = z.object({
+  articles: z.array(articleSchema),
+  articlesCount: z.number(),
+})
+
+async function generateUniqueSlug(title: string, prisma: PrismaClient): Promise<string> {
+  const slug = title.toLowerCase().replace(/\s/g, '-')
+  const similarSlugCount = await prisma.article.count({
+    where: { slug: { startsWith: slug } },
+  })
+  return `${slug}-${similarSlugCount + 1}`
+}
 
 export const articleRouter = createTRPCRouter({
   getArticleFeed: protectedProcedure
@@ -47,14 +56,11 @@ export const articleRouter = createTRPCRouter({
       },
     })
     .input(paginationInputSchema)
-    .output(z.object({
-      articles: z.array(articleSchema),
-      articlesCount: z.number(),
-    }))
-    .query(async ({
-                    input,
-                    ctx,
-                  }) => {
+    .output(articleListSchema)
+    .query(async opts => {
+      const { input, ctx } = opts
+
+      const skip = Math.max(0, (input.offset ?? 1) - 1) * input.limit
       const where = {
         author: {
           followedByUsers: {
@@ -65,14 +71,14 @@ export const articleRouter = createTRPCRouter({
         },
       }
 
-      const skip = Math.max(0, ((input.offset ?? 1) - 1)) * input.limit
       const articles = await ctx.prisma.article.findMany({
         take: input.limit,
         skip,
         orderBy: { createdAt: 'desc' },
         include: {
-          author: { include: { followedByUsers: true } },
-          favoritedBy: { select: { id: true } },
+          author: true,
+          _count: { select: { favoritedBy: true } },
+          favoritedBy: { select: { id: true }, where: { id: ctx.user.id } },
           tagList: { orderBy: { value: 'asc' } },
         },
         where,
@@ -80,17 +86,15 @@ export const articleRouter = createTRPCRouter({
       const articlesCount = await ctx.prisma.article.count({ where })
 
       return {
-        articles: articles.map((article) => {
-          return {
-            ...article,
-            author: {
-              ...article.author,
-              following: true,
-            },
-            favorited: article.favoritedBy.some(user => user.id === ctx.user.id),
-            favoritesCount: article.favoritedBy.length,
-          }
-        }),
+        articles: articles.map(article => ({
+          ...article,
+          author: {
+            ...article.author,
+            following: true, // We know that the user follows the author since it is his feed
+          },
+          favorited: article.favoritedBy.length > 0,
+          favoritesCount: article._count.favoritedBy,
+        })),
         articlesCount,
       }
     }),
@@ -105,22 +109,18 @@ export const articleRouter = createTRPCRouter({
         description: 'Get most recent articles globally. Use query parameters to filter results. Auth is optional',
       },
     })
-    .input(paginationInputSchema.extend({
-      tag: z.string()
-        .optional(),
-      author: z.string()
-        .optional(),
-      favorited: z.string()
-        .optional(),
-    }))
-    .output(z.object({
-      articles: z.array(articleSchema),
-      articlesCount: z.number(),
-    }))
-    .query(async ({
-                    input,
-                    ctx,
-                  }) => {
+    .input(
+      paginationInputSchema.extend({
+        tag: z.string().optional(),
+        author: z.string().optional(),
+        favorited: z.string().optional(),
+      }),
+    )
+    .output(articleListSchema)
+    .query(async opts => {
+      const { input, ctx } = opts
+
+      const skip = Math.max(0, (input.offset ?? 1) - 1) * input.limit
       const where = {
         AND: [
           input.tag && { tagList: { some: { value: { contains: input.tag } } } },
@@ -129,44 +129,37 @@ export const articleRouter = createTRPCRouter({
         ].filter(truthy),
       }
 
-      const authorInclude = ctx.user ? {
-        include: {
-          followedByUsers: {
-            select: { id: true },
-            where: { id: ctx.user.id },
-          },
-        },
-      } : true
-
-      const skip = Math.max(0, ((input.offset ?? 1) - 1)) * input.limit
       const articles = await ctx.prisma.article.findMany({
         take: input.limit,
         skip,
         orderBy: { createdAt: 'desc' },
         include: {
-          author: authorInclude,
+          author: {
+            include: {
+              followedByUsers: {
+                select: { id: true },
+                where: { id: ctx.user?.id },
+              },
+            },
+          },
           tagList: { orderBy: { value: 'asc' } },
-          favoritedBy: { select: { id: true } },
+          _count: { select: { favoritedBy: true } },
+          favoritedBy: { select: { id: true }, where: { id: ctx.user?.id } },
         },
         where,
       })
       const articlesCount = await ctx.prisma.article.count({ where })
 
       return {
-        articles: articles.map((article) => {
-          const following = 'followedByUsers' in article.author
-            && Array.isArray(article.author.followedByUsers)
-            && !!article.author.followedByUsers?.length
-          return {
-            ...article,
-            author: {
-              ...article.author,
-              following,
-            },
-            favorited: article.favoritedBy.some(user => user.id === ctx.user?.id),
-            favoritesCount: article.favoritedBy.length,
-          }
-        }),
+        articles: articles.map(article => ({
+          ...article,
+          author: {
+            ...article.author,
+            following: article.author.followedByUsers.length > 0,
+          },
+          favorited: article.favoritedBy.length > 0,
+          favoritesCount: article._count.favoritedBy,
+        })),
         articlesCount,
       }
     }),
@@ -181,29 +174,22 @@ export const articleRouter = createTRPCRouter({
         description: 'Create an article. Auth is required',
       },
     })
-    .input(z.object({
-      article: z.object({
-        title: z.string()
-          .min(1),
-        description: z.string()
-          .min(1),
-        body: z.string()
-          .min(1),
-        tagList: z.array(z.string()),
+    .input(
+      z.object({
+        article: z.object({
+          title: z.string().min(1),
+          description: z.string().min(1),
+          body: z.string().min(1),
+          tagList: z.array(z.string()),
+        }),
       }),
-    }))
+    )
     .output(z.object({ article: articleSchema }))
-    .mutation(async ({
-                       input,
-                       ctx,
-                     }) => {
-      const createdAt = new Date()
+    .mutation(async opts => {
+      const { input, ctx } = opts
 
-      const slug = input.article.title.toLowerCase()
-        .replace(/\s/g, '-')
-      const similarSlugCount = await ctx.prisma.article.count({
-        where: { slug: { startsWith: slug } },
-      })
+      const createdAt = new Date()
+      const slug = await generateUniqueSlug(input.article.title, ctx.prisma)
 
       const article = await ctx.prisma.article.create({
         data: {
@@ -216,7 +202,7 @@ export const articleRouter = createTRPCRouter({
           },
           createdAt,
           updatedAt: createdAt,
-          slug: `${ slug }-${ similarSlugCount + 1 }`,
+          slug,
           author: { connect: { id: ctx.user.id } },
         },
         include: {
@@ -230,9 +216,9 @@ export const articleRouter = createTRPCRouter({
           ...article,
           author: {
             ...article.author,
-            following: false,
+            following: false, // Since this is the user itself, he is not following himself
           },
-          favorited: false,
+          favorited: false, // Since the article was just created, the user has not favorited it yet
           favoritesCount: 0,
         },
       }
@@ -250,25 +236,22 @@ export const articleRouter = createTRPCRouter({
     })
     .input(z.object({ slug: z.string() }))
     .output(z.object({ article: articleSchema }))
-    .query(async ({
-                    input,
-                    ctx,
-                  }) => {
-
-      const authorInclude = ctx.user ? {
-        include: {
-          followedByUsers: {
-            select: { id: true },
-            where: { id: ctx.user.id },
-          },
-        },
-      } : true
+    .query(async opts => {
+      const { input, ctx } = opts
 
       const article = await ctx.prisma.article.findUnique({
         include: {
-          author: authorInclude,
+          author: {
+            include: {
+              followedByUsers: {
+                select: { id: true },
+                where: { id: ctx.user?.id },
+              },
+            },
+          },
           tagList: { orderBy: { value: 'asc' } },
-          favoritedBy: { select: { id: true } },
+          _count: { select: { favoritedBy: true } },
+          favoritedBy: { select: { id: true }, where: { id: ctx.user?.id } },
         },
         where: {
           slug: input.slug,
@@ -282,18 +265,15 @@ export const articleRouter = createTRPCRouter({
         })
       }
 
-      const following = 'followedByUsers' in article.author
-        && Array.isArray(article.author.followedByUsers)
-        && !!article.author.followedByUsers?.length
       return {
         article: {
           ...article,
           author: {
             ...article.author,
-            following,
+            following: article.author.followedByUsers.length > 0,
           },
-          favorited: !!ctx.user && article.favoritedBy.some(user => user.id === ctx.user?.id),
-          favoritesCount: article.favoritedBy.length,
+          favorited: article.favoritedBy.length > 0,
+          favoritesCount: article._count.favoritedBy,
         },
       }
     }),
@@ -308,93 +288,84 @@ export const articleRouter = createTRPCRouter({
         description: 'Update an article. Auth is required',
       },
     })
-    .input(z.object({
-      slug: z.string(),
-      article: z.object({
-        title: z.string().nullish().optional(),
-        description: z.string().nullish().optional(),
-        body: z.string().nullish().optional(),
+    .input(
+      z.object({
+        slug: z.string(),
+        article: z.object({
+          title: z.string().nullish().optional(),
+          description: z.string().nullish().optional(),
+          body: z.string().nullish().optional(),
+        }),
       }),
-    }))
+    )
     .output(z.object({ article: articleSchema }))
-    .mutation(async ({
-                       input,
-                       ctx,
-                     }) => {
+    .mutation(async opts => {
+      const { input, ctx } = opts
+
       const updatedAt = new Date()
-
-      let newSlug = input.slug
+      let slug = input.slug
       if (input.article.title) {
-        const slug = input.article.title.toLowerCase()
-          .replace(/\s/g, '-')
-        const similarSlugCount = await ctx.prisma.article.count({
-          where: { slug: { startsWith: slug } },
-        })
-
-        newSlug = `${ slug }-${ similarSlugCount + 1 }`
+        slug = await generateUniqueSlug(input.article.title, ctx.prisma)
       }
 
-      const authorInclude = ctx.user ? {
-        include: {
-          followedByUsers: {
-            select: { id: true },
-            where: { id: ctx.user.id },
-          },
-        },
-      } : true
       const article = await ctx.prisma.article.update({
         where: { slug: input.slug },
         data: {
           title: input.article.title || undefined,
           description: input.article.description || undefined,
           body: input.article.body || undefined,
-          slug: newSlug,
+          slug,
           updatedAt,
         },
         include: {
-          author: authorInclude,
-          favoritedBy: { select: { id: true } },
+          author: {
+            include: {
+              followedByUsers: {
+                select: { id: true },
+                where: { id: ctx.user.id },
+              },
+            },
+          },
+          _count: { select: { favoritedBy: true } },
+          favoritedBy: { select: { id: true }, where: { id: ctx.user.id } },
           tagList: { orderBy: { value: 'asc' } },
         },
       })
 
-      const following = 'followedByUsers' in article.author
-        && Array.isArray(article.author.followedByUsers)
-        && !!article.author.followedByUsers?.length
       return {
         article: {
           ...article,
           author: {
             ...article.author,
-            following,
+            following: article.author.followedByUsers.length > 0,
           },
-          favorited: article.favoritedBy.some(user => user.id === ctx.user.id),
-          favoritesCount: article.favoritedBy.length,
+          favorited: article.favoritedBy.length > 0,
+          favoritesCount: article._count.favoritedBy,
         },
       }
     }),
-  deleteArticle:
-    protectedProcedure
-      .meta({
-        openapi: {
-          method: 'DELETE',
-          path: '/articles/{slug}',
-          protect: true,
-          tags: ['Articles'],
-          summary: 'Delete an article',
-          description: 'Delete an article. Auth is required',
-        },
-      })
-      .input(z.object({
+  deleteArticle: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'DELETE',
+        path: '/articles/{slug}',
+        protect: true,
+        tags: ['Articles'],
+        summary: 'Delete an article',
+        description: 'Delete an article. Auth is required',
+      },
+    })
+    .input(
+      z.object({
         slug: z.string(),
-      }))
-      .output(z.void())
-      .mutation(async ({
-                         input,
-                         ctx,
-                       }) => {
-        await ctx.prisma.article.delete({
-          where: { slug: input.slug },
-        })
       }),
+    )
+    .output(z.void())
+    .mutation(async opts => {
+      const { input, ctx } = opts
+
+      await ctx.prisma.article.delete({
+        where: { slug: input.slug },
+      })
+    }),
 })

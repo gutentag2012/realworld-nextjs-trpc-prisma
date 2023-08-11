@@ -28,7 +28,7 @@ const jwtVerify = <T>(token: string, secret: string) => verify(token, secret) as
  */
 
 interface CreateContextOptions {
-  user: User | null;
+  user: User | null
 }
 
 /**
@@ -83,21 +83,20 @@ type Context = inferAsyncReturnType<typeof createTRPCContext>
  * ZodErrors so that you get typesafety on the frontend if your procedure fails due to validation
  * errors on the backend.
  */
-const t = initTRPC.context<Context>()
+const t = initTRPC
+  .context<Context>()
   .meta<OpenApiMeta>()
   .create({
     transformer: superjson,
-    errorFormatter({
-                     shape,
-                     error,
-                   }) {
+    errorFormatter({ shape, error }) {
       return {
         ...shape,
         data: {
           ...shape.data,
-          zodError: error.cause instanceof ZodError
-                    ? error.cause.flatten(issue => `${ issue.path.pop() }: ${ issue.message }`)
-                    : undefined,
+          zodError:
+            error.cause instanceof ZodError
+              ? error.cause.flatten(issue => `${issue.path.pop()}: ${issue.message}`)
+              : undefined,
         },
       }
     },
@@ -111,12 +110,9 @@ const t = initTRPC.context<Context>()
  */
 
 /** Reusable middleware that enforces users are logged in before running the procedure. */
-const enforceUserIsAuthed = t.middleware(({
-                                            ctx,
-                                            next,
-                                          }) => {
+const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
   if (!ctx.user) {
-    throw new TRPCError({ code: 'UNAUTHORIZED' })
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'User has no access to this resource' })
   }
   return next({
     ctx: {

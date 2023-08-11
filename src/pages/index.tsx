@@ -13,46 +13,53 @@ const Home: NextPage = () => {
 
   const { data: tags, isLoading: isLoadingTags } = api.tags.getUniqueTags.useQuery()
 
-  return <Layout>
-    <div className='home-page'>
-      <div className='banner'>
-        <div className='container'>
-          <h1 className='logo-font' data-testid="banner-title">conduit</h1>
-          <p>A place to share your knowledge.</p>
+  return (
+    <Layout>
+      <div className="home-page">
+        <div className="banner">
+          <div className="container">
+            <h1 className="logo-font" data-testid="banner-title">
+              conduit
+            </h1>
+            <p>A place to share your knowledge.</p>
+          </div>
         </div>
-      </div>
 
-      <div className='container page'>
-        <div className='row'>
+        <div className="container page">
+          <div className="row">
+            <ArticleListTabs
+              className="col-md-9"
+              tabs={[!!isLoggedIn && 'feed', 'global']}
+              defaultTab="global"
+              toggleClassName="feed-toggle"
+            />
 
-          <ArticleListTabs
-            className='col-md-9'
-            tabs={ [!!isLoggedIn && 'feed', 'global'] }
-            defaultTab='global'
-            toggleClassName='feed-toggle'
-          />
+            <div className="col-md-3">
+              <div className="sidebar">
+                <p>Popular Tags</p>
 
-          <div className='col-md-3'>
-            <div className='sidebar'>
-              <p>Popular Tags</p>
-
-              <div className='tag-list'>
-                {
-                  isLoadingTags ? <div>Loading...</div> : tags?.tags?.map(tag => <QueryLink
-                    key={ tag }
-                    className='tag-pill tag-default'
-                    query={ { feedType: tag === selectedTag ? '' : '#' + tag } }
-                  >
-                    { tag }
-                  </QueryLink>)
-                }
+                <div className="tag-list">
+                  {isLoadingTags ? (
+                    <div>Loading...</div>
+                  ) : (
+                    tags?.tags?.map(tag => (
+                      <QueryLink
+                        key={tag}
+                        className="tag-pill tag-default"
+                        query={{ feedType: tag === selectedTag ? '' : '#' + tag }}
+                      >
+                        {tag}
+                      </QueryLink>
+                    ))
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </Layout>
+    </Layout>
+  )
 }
 
 export default Home

@@ -11,33 +11,18 @@ interface UserIconProps {
 
 type Props = UserIconProps
 
-export const AuthorIcon: FunctionComponent<Props> = ({
-                                                       user,
-                                                       date,
-                                                     }) => {
-  return <>
-    <Link href={ `/profile/${ encodeURIComponent(user?.username ?? '') }` }>
-      {/* eslint-disable-next-line @next/next/no-img-element */ }
-      { user?.image &&
-          <Image
-              src={ user.image }
-              alt='Author profile picture'
-              width={ 32 }
-              height={ 32 }
-          />
-      }
-    </Link>
-    <div className='info'>
-      <Link
-        href={ `/profile/${ encodeURIComponent(user?.username ?? '') }` }
-        className='author'
-      >
-        { user?.username }
+export const AuthorIcon: FunctionComponent<Props> = ({ user, date }) => {
+  return (
+    <>
+      <Link href={`/profile/${encodeURIComponent(user?.username ?? '')}`}>
+        {user?.image && <Image src={user.image} alt="Author profile picture" width={32} height={32} />}
       </Link>
-      {
-        date &&
-          <span className='date'>{ format(date, 'MMMM d, yyyy') }</span>
-      }
-    </div>
-  </>
+      <div className="info">
+        <Link href={`/profile/${encodeURIComponent(user?.username ?? '')}`} className="author">
+          {user?.username}
+        </Link>
+        {date && <span className="date">{format(date, 'MMMM d, yyyy')}</span>}
+      </div>
+    </>
+  )
 }
