@@ -36,7 +36,6 @@ test('does have personal feed with logged in user', async ({ page }) => {
   await page.getByTestId('input-password').fill(testUser.password)
   await page.getByTestId('btn-submit').click()
 
-  await page.getByTestId('userlist').waitFor({ state: 'visible' })
   await page.goto('./')
 
   const globalFeed = page.getByTestId('feed-type-global')
