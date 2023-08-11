@@ -38,9 +38,6 @@ const Login: NextPage = () => {
 
   const errors = getErrorArrayFromTrpcResponseError(error, isError)
 
-  // TODO Remove
-  const useDebug = api.auth.getUsers.useQuery()
-
   return (
     <div className="auth-page">
       <div className="container page">
@@ -56,9 +53,6 @@ const Login: NextPage = () => {
                 <li key={i}>{error}</li>
               ))}
             </ul>
-
-            {/*TODO Remove*/}
-            <pre data-testid={'userlist'}>{JSON.stringify(useDebug, null, 2)}</pre>
 
             <form
               onSubmit={e => {

@@ -25,6 +25,7 @@ test('does not have personal feed without logged in user', async ({ page }) => {
 
   const globalFeed = page.getByTestId('feed-type-global')
   const personalFeed = page.getByTestId('feed-type-feed')
+
   await expect(globalFeed).toBeVisible()
   await expect(personalFeed).not.toBeVisible()
 })
@@ -36,10 +37,9 @@ test('does have personal feed with logged in user', async ({ page }) => {
   await page.getByTestId('input-password').fill(testUser.password)
   await page.getByTestId('btn-submit').click()
 
-  await page.goto('./')
-
   const globalFeed = page.getByTestId('feed-type-global')
   const personalFeed = page.getByTestId('feed-type-feed')
+
   await expect(globalFeed).toBeVisible()
   await expect(personalFeed).toBeVisible()
 })
