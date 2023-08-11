@@ -38,6 +38,9 @@ const Login: NextPage = () => {
 
   const errors = getErrorArrayFromTrpcResponseError(error, isError)
 
+  // TODO Remove
+  const { data, isLoading: isLoadingUsers } = api.auth.getUsers.useQuery()
+
   return (
     <div className="auth-page">
       <div className="container page">
@@ -53,6 +56,15 @@ const Login: NextPage = () => {
                 <li key={i}>{error}</li>
               ))}
             </ul>
+
+            {/*TODO Remove*/}
+            {!isLoadingUsers && (
+              <div data-testid={'userlist'}>
+                {data?.map(user => (
+                  <div key={user.username}>{user.username}</div>
+                ))}
+              </div>
+            )}
 
             <form
               onSubmit={e => {

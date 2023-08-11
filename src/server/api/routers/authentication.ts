@@ -158,6 +158,10 @@ export const authenticationRouter = createTRPCRouter({
         },
       }
     }),
+  getUsers: publicProcedure.input(z.void()).query(async ({ ctx }) => {
+    // TODO Remove
+    return ctx.prisma.user.findMany({ select: { username: true } })
+  }),
   updateUser: protectedProcedure
     .meta({
       openapi: {
