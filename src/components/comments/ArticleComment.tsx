@@ -24,7 +24,10 @@ export const ArticleComment: FunctionComponent<Props> = ({ comment, isOwnComment
         <p className="card-text">{comment.body}</p>
       </div>
       <div className="card-footer">
-        <Link href={`/profile/${encodeURIComponent(comment.author.username)}`} className="comment-author">
+        <Link
+          href={`/profile/${encodeURIComponent(comment.author.username)}`}
+          className="comment-author"
+        >
           {comment.author.image && (
             <Image
               src={comment.author.image}
@@ -36,7 +39,10 @@ export const ArticleComment: FunctionComponent<Props> = ({ comment, isOwnComment
           )}
         </Link>
         &nbsp; &nbsp;
-        <Link href={`/profile/${encodeURIComponent(comment.author.username)}`} className="comment-author">
+        <Link
+          href={`/profile/${encodeURIComponent(comment.author.username)}`}
+          className="comment-author"
+        >
           {comment.author.username}
         </Link>
         <span className="date-posted">{format(new Date(comment.createdAt), 'MMM d, yyyy')}</span>

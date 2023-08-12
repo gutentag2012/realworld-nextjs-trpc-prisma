@@ -12,7 +12,12 @@ interface ArticleMetaProps {
   refetch: () => void
 }
 
-export const ArticleMeta: FC<ArticleMetaProps> = ({ article, onDelete, ownProfile, refetch }: ArticleMetaProps) => {
+export const ArticleMeta: FC<ArticleMetaProps> = ({
+  article,
+  onDelete,
+  ownProfile,
+  refetch,
+}: ArticleMetaProps) => {
   return (
     <div className="article-meta">
       <AuthorIcon user={article.author} date={new Date(article.createdAt)} />
@@ -33,7 +38,10 @@ export const ArticleMeta: FC<ArticleMetaProps> = ({ article, onDelete, ownProfil
         </>
       ) : (
         <>
-          <Link href={'/editor/' + encodeURIComponent(article.slug)} className="btn btn-sm btn-outline-secondary">
+          <Link
+            href={`/editor/${encodeURIComponent(article.slug)}`}
+            className="btn btn-sm btn-outline-secondary"
+          >
             <i className="ion-edit" /> &nbsp;Edit Article
           </Link>
           &nbsp;&nbsp;

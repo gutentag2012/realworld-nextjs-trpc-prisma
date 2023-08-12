@@ -42,9 +42,15 @@ export const Pagination: FC<PaginationProps> = ({ totalCount, currentCount, limi
       return [1, '...', pageCount - 2, pageCount - 1, pageCount]
     }
 
-    return [1, offset > 3 && '...', offset - 1, offset, offset + 1, offset < pageCount - 2 && '...', pageCount].filter(
-      Boolean,
-    ) as Array<number | '...'>
+    return [
+      1,
+      offset > 3 && '...',
+      offset - 1,
+      offset,
+      offset + 1,
+      offset < pageCount - 2 && '...',
+      pageCount,
+    ].filter(Boolean) as Array<number | '...'>
   }, [totalCount, limit, offset])
 
   // This is used to go back a page in case the current page is empty because of a filter change
@@ -66,7 +72,10 @@ export const Pagination: FC<PaginationProps> = ({ totalCount, currentCount, limi
               ...
             </span>
           ) : (
-            <QueryLink className={'page-link' + (page === offset ? ' active' : '')} query={{ offset: page.toString() }}>
+            <QueryLink
+              className={`page-link${page === offset ? ' active' : ''}`}
+              query={{ offset: page.toString() }}
+            >
               {page}
             </QueryLink>
           )}

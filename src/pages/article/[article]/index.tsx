@@ -30,9 +30,10 @@ const Article: NextPage = () => {
   } = api.articles.getArticlesBySlug.useQuery({ slug: articleSlug })
   const article = articleData?.article
 
-  const { data: articleComments, isLoading: isLoadingComments } = api.comments.getCommentsForArticle.useQuery({
-    slug: articleSlug,
-  })
+  const { data: articleComments, isLoading: isLoadingComments } =
+    api.comments.getCommentsForArticle.useQuery({
+      slug: articleSlug,
+    })
 
   // Actions
   const { mutate: deleteArticle } = api.articles.deleteArticle.useMutation({
@@ -104,7 +105,12 @@ const Article: NextPage = () => {
           <div className="container">
             <h1>{article.title}</h1>
 
-            <ArticleMeta article={article} ownProfile={isOwnProfile} onDelete={onDelete} refetch={refetch} />
+            <ArticleMeta
+              article={article}
+              ownProfile={isOwnProfile}
+              onDelete={onDelete}
+              refetch={refetch}
+            />
           </div>
         </div>
 
@@ -125,42 +131,43 @@ const Article: NextPage = () => {
           <hr />
 
           <div className="article-actions">
-            <ArticleMeta article={article} ownProfile={isOwnProfile} onDelete={onDelete} refetch={refetch} />
+            <ArticleMeta
+              article={article}
+              ownProfile={isOwnProfile}
+              onDelete={onDelete}
+              refetch={refetch}
+            />
           </div>
 
-          {user ? (
-            <div className="row">
-              <div className="col-xs-12 col-md-8 offset-md-2">
+          <div className="row">
+            <div className="col-xs-12 col-md-8 offset-md-2">
+              {user ? (
                 <AddCommentForm slug={articleSlug} currentUser={user} />
-
-                {isLoadingComments && (
-                  <div className="card">
-                    <div className="card-block">
-                      <p className="card-text">Loading comments...</p>
-                    </div>
-                  </div>
-                )}
-
-                {articleComments?.comments.map(comment => (
-                  <ArticleComment
-                    key={comment.id}
-                    slug={articleSlug}
-                    comment={comment}
-                    isOwnComment={user?.username === comment.author.username}
-                  />
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="row">
-              <div className="col-xs-12 col-md-8 offset-md-2">
+              ) : (
                 <p>
-                  <Link href="/login">Sign in</Link> or <Link href="/register">sign up</Link> to add comments on this
-                  article.
+                  <Link href="/login">Sign in</Link> or <Link href="/register">sign up</Link> to add
+                  comments on this article.
                 </p>
-              </div>
+              )}
+
+              {isLoadingComments && (
+                <div className="card">
+                  <div className="card-block">
+                    <p className="card-text">Loading comments...</p>
+                  </div>
+                </div>
+              )}
+
+              {articleComments?.comments.map(comment => (
+                <ArticleComment
+                  key={comment.id}
+                  slug={articleSlug}
+                  comment={comment}
+                  isOwnComment={user?.username === comment.author.username}
+                />
+              ))}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </Layout>

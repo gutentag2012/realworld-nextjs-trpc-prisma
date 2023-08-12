@@ -1,5 +1,5 @@
-import { createEnv } from "@t3-oss/env-nextjs";
-import { z } from "zod";
+import { createEnv } from '@t3-oss/env-nextjs'
+import { z } from 'zod'
 
 export const env = createEnv({
   /**
@@ -8,7 +8,7 @@ export const env = createEnv({
    */
   server: {
     DATABASE_URL: z.string().url(),
-    NODE_ENV: z.enum(["development", "test", "production"]),
+    NODE_ENV: z.enum(['development', 'test', 'production']),
     JWT_SECRET: z.string(),
     VERCEL_URL: z.string().optional(),
     PORT: z.coerce.number().optional(),
@@ -20,8 +20,7 @@ export const env = createEnv({
    * isn't built with invalid env vars. To expose them to the client, prefix them with
    * `NEXT_PUBLIC_`.
    */
-  client: {
-  },
+  client: {},
 
   /**
    * You can't destruct `process.env` as a regular object in the Next.js edge runtimes (e.g.
@@ -40,4 +39,4 @@ export const env = createEnv({
    * This is especially useful for Docker builds.
    */
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
-});
+})

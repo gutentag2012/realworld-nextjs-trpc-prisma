@@ -15,7 +15,11 @@ const Login: NextPage = () => {
   const username = decodeURIComponent(query.username as string)
 
   // Data
-  const { data: profileData, isLoading, refetch } = api.profiles.getProfileByName.useQuery({ username })
+  const {
+    data: profileData,
+    isLoading,
+    refetch,
+  } = api.profiles.getProfileByName.useQuery({ username })
   const profile = profileData?.profile
 
   // Check if this is the logged-in user's profile
@@ -50,7 +54,13 @@ const Login: NextPage = () => {
             <div className="row">
               <div className="col-xs-12 col-md-10 offset-md-1">
                 {profile.image && (
-                  <Image src={profile.image} alt="Profile picture" className="user-img" width={100} height={100} />
+                  <Image
+                    src={profile.image}
+                    alt="Profile picture"
+                    className="user-img"
+                    width={100}
+                    height={100}
+                  />
                 )}
                 <h4>{profile.username}</h4>
                 <p>{profile.bio}</p>

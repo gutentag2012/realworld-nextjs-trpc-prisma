@@ -12,6 +12,8 @@ export const getErrorArrayFromTrpcResponseError = (
     return [error.message]
   }
   return Object.entries(error.data.zodError.fieldErrors)
-    .flatMap(([key, messages]) => messages?.map(message => (message.startsWith(key) ? message : `${key}.${message}`)))
+    .flatMap(([key, messages]) =>
+      messages?.map(message => (message.startsWith(key) ? message : `${key}.${message}`)),
+    )
     .filter(Boolean) as string[]
 }

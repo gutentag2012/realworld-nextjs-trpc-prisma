@@ -44,7 +44,10 @@ export const ArticleListTabs: FunctionComponent<Props> = ({
     return [selectedFeedType, isTagSelected]
   }, [defaultTab, searchParams])
 
-  const finalTags = useMemo(() => [...tabs, isTagSelected && selectedFeedType], [isTagSelected, selectedFeedType, tabs])
+  const finalTags = useMemo(
+    () => [...tabs, isTagSelected && selectedFeedType],
+    [isTagSelected, selectedFeedType, tabs],
+  )
 
   const {
     data: allArticles,
@@ -63,7 +66,9 @@ export const ArticleListTabs: FunctionComponent<Props> = ({
     data: feedArticles,
     isLoading: isLoadingFeedArticles,
     refetch: refetchFeed,
-  } = api.articles.getArticleFeed.useQuery(pagination, { enabled: selectedFeedType === 'feed' && !!isLoggedIn })
+  } = api.articles.getArticleFeed.useQuery(pagination, {
+    enabled: selectedFeedType === 'feed' && !!isLoggedIn,
+  })
 
   const { articles, isLoadingArticles, refetch } = useMemo(() => {
     return {
@@ -87,7 +92,10 @@ export const ArticleListTabs: FunctionComponent<Props> = ({
         <ul className="nav nav-pills outline-active">
           {(finalTags.filter(Boolean) as Array<ArticleType>).map(feedType => (
             <li key={feedType} className="nav-item" data-testid={`feed-type-${feedType}`}>
-              <QueryLink className={`nav-link ${feedType === selectedFeedType ? 'active' : ''}`} query={{ feedType }}>
+              <QueryLink
+                className={`nav-link ${feedType === selectedFeedType ? 'active' : ''}`}
+                query={{ feedType }}
+              >
                 {ArticleTypes[feedType as PredefinedArticleType] ?? feedType}
               </QueryLink>
             </li>
@@ -102,11 +110,19 @@ export const ArticleListTabs: FunctionComponent<Props> = ({
         <div>Loading...</div>
       ) : (
         articles?.articles?.map(article => (
-          <ArticleListEntry key={article.slug} article={article} onToggleFavorite={() => refetch()} />
+          <ArticleListEntry
+            key={article.slug}
+            article={article}
+            onToggleFavorite={() => refetch()}
+          />
         ))
       )}
 
-      <Pagination currentCount={articles?.articles?.length} totalCount={articles?.articlesCount} {...pagination} />
+      <Pagination
+        currentCount={articles?.articles?.length}
+        totalCount={articles?.articlesCount}
+        {...pagination}
+      />
     </div>
   )
 }

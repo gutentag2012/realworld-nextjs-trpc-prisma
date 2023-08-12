@@ -24,7 +24,8 @@ export const useIsLoggedIn = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null)
 
   useEffect(() => {
-    const newToken = (typeof window === 'undefined' ? null : window.sessionStorage.getItem('token')) ?? null
+    const newToken =
+      (typeof window === 'undefined' ? null : window.sessionStorage.getItem('token')) ?? null
     setIsLoggedIn(!!newToken)
   }, [])
 
@@ -60,12 +61,15 @@ export const api = createTRPCNext<AppRouter>({
       links: [
         loggerLink({
           enabled: opts =>
-            process.env.NODE_ENV === 'development' || (opts.direction === 'down' && opts.result instanceof Error),
+            process.env.NODE_ENV === 'development' ||
+            (opts.direction === 'down' && opts.result instanceof Error),
         }),
         httpBatchLink({
           url: `${getBaseUrl()}/api/trpc`,
           headers() {
-            const token = (typeof window === 'undefined' ? null : window.sessionStorage.getItem('token')) ?? null
+            const token =
+              (typeof window === 'undefined' ? null : window.sessionStorage.getItem('token')) ??
+              null
             return {
               ...(token ? { Authorization: `Token ${token}` } : {}),
             }

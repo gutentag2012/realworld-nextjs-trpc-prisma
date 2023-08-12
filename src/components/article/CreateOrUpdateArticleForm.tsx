@@ -17,7 +17,11 @@ interface CreateOrUpdateArticleFormProps {
 
 type Props = CreateOrUpdateArticleFormProps
 
-export const CreateOrUpdateArticleForm: FunctionComponent<Props> = ({ onSubmit, errors, article }) => {
+export const CreateOrUpdateArticleForm: FunctionComponent<Props> = ({
+  onSubmit,
+  errors,
+  article,
+}) => {
   // Input state for the tag input
   const [tagList, setTagList] = useState<Array<string>>([])
 
@@ -44,7 +48,9 @@ export const CreateOrUpdateArticleForm: FunctionComponent<Props> = ({ onSubmit, 
                 e.preventDefault()
                 const formData = new FormData(e.currentTarget)
 
-                const data = CreateOrUpdateArticleSchema.parse(Object.fromEntries(formData.entries()))
+                const data = CreateOrUpdateArticleSchema.parse(
+                  Object.fromEntries(formData.entries()),
+                )
 
                 onSubmit(data, tagList)
               }}

@@ -14,7 +14,11 @@ const ArticleListEntry: React.FC<Props> = ({ article, onToggleFavorite }) => {
     <div className="article-preview">
       <div className="article-meta">
         <AuthorIcon user={article.author} date={new Date(article.createdAt)} />
-        <FavoriteButton article={article} onToggleFavorite={onToggleFavorite} className="pull-xs-right" />
+        <FavoriteButton
+          article={article}
+          onToggleFavorite={onToggleFavorite}
+          className="pull-xs-right"
+        />
       </div>
       <Link href={`/article/${encodeURIComponent(article.slug)}`} className="preview-link">
         <h1>{article.title}</h1>

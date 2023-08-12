@@ -7,7 +7,10 @@ interface CommentFormProps {
   currentUser: RouterOutputs['auth']['me']['user']
 }
 
-export const AddCommentForm: FC<CommentFormProps> = ({ currentUser: { image, username }, slug }) => {
+export const AddCommentForm: FC<CommentFormProps> = ({
+  currentUser: { image, username },
+  slug,
+}) => {
   const ctx = api.useContext()
   const { mutate: addComment } = api.comments.addCommentToArticle.useMutation({
     onSuccess: () => ctx.comments.getCommentsForArticle.invalidate(),
@@ -33,13 +36,18 @@ export const AddCommentForm: FC<CommentFormProps> = ({ currentUser: { image, use
       }}
     >
       <div className="card-block">
-        <textarea className="form-control" placeholder="Write a comment..." rows={3} name="comment" />
+        <textarea
+          className="form-control"
+          placeholder="Write a comment..."
+          rows={3}
+          name="comment"
+        />
       </div>
       <div className="card-footer">
         {image && (
           <Image
             src={image}
-            alt={username + ' profile picture'}
+            alt={`${username} profile picture`}
             className="comment-author-img"
             width={30}
             height={30}

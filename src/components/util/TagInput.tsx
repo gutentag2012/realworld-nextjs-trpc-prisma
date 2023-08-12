@@ -35,7 +35,10 @@ export const TagInput: FC<TagInputProps> = ({ article, setTagList, tagList }) =>
           <span key={i} className="tag-default tag-pill">
             {!article && (
               <>
-                <i className="ion-close-round" onClick={() => setTagList(tagList.filter((_, index) => i !== index))} />
+                <i
+                  className="ion-close-round"
+                  onClick={() => setTagList(tagList.filter((_, index) => i !== index))}
+                />
                 &nbsp;
               </>
             )}

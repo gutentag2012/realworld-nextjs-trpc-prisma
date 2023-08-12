@@ -22,7 +22,7 @@ export const tagsRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       const tags = await ctx.prisma.articelTags.findMany()
       return {
-        tags: tags.map((tag) => tag.value),
+        tags: tags.map(tag => tag.value),
       }
     }),
 })

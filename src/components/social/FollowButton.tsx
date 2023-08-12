@@ -11,7 +11,12 @@ interface followButtonProps {
 
 type Props = followButtonProps
 
-export const FollowButton: FunctionComponent<Props> = ({ isOwnProfile, user, onSuccess, transformText = e => e }) => {
+export const FollowButton: FunctionComponent<Props> = ({
+  isOwnProfile,
+  user,
+  onSuccess,
+  transformText = e => e,
+}) => {
   const { push } = useRouter()
   const isLoggedIn = useIsLoggedIn()
 
@@ -24,7 +29,9 @@ export const FollowButton: FunctionComponent<Props> = ({ isOwnProfile, user, onS
 
   return (
     <button
-      className={`btn btn-sm ${user.following ? 'btn-secondary' : 'btn-outline-secondary'} action-btn`}
+      className={`btn btn-sm ${
+        user.following ? 'btn-secondary' : 'btn-outline-secondary'
+      } action-btn`}
       onClick={() => {
         if (!isLoggedIn) {
           return push('/register')
@@ -34,7 +41,7 @@ export const FollowButton: FunctionComponent<Props> = ({ isOwnProfile, user, onS
       }}
     >
       <i className="ion-plus-round" /> &nbsp;
-      {transformText((user.following ? 'Unfollow' : 'Follow') + ' ' + user.username)}
+      {transformText(`${user.following ? 'Unfollow' : 'Follow'} ${user.username}`)}
     </button>
   )
 }

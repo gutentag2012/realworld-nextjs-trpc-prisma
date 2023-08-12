@@ -15,7 +15,9 @@ export const AuthorIcon: FunctionComponent<Props> = ({ user, date }) => {
   return (
     <>
       <Link href={`/profile/${encodeURIComponent(user?.username ?? '')}`}>
-        {user?.image && <Image src={user.image} alt="Author profile picture" width={32} height={32} />}
+        {user?.image && (
+          <Image src={user.image} alt="Author profile picture" width={32} height={32} />
+        )}
       </Link>
       <div className="info">
         <Link href={`/profile/${encodeURIComponent(user?.username ?? '')}`} className="author">

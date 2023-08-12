@@ -52,7 +52,8 @@ export const articleRouter = createTRPCRouter({
         protect: true,
         tags: ['Articles'],
         summary: 'Get recent articles from users you follow',
-        description: 'Get most recent articles from users you follow. Use query parameters to limit. Auth is required',
+        description:
+          'Get most recent articles from users you follow. Use query parameters to limit. Auth is required',
       },
     })
     .input(paginationInputSchema)
@@ -106,7 +107,8 @@ export const articleRouter = createTRPCRouter({
         protect: false,
         tags: ['Articles'],
         summary: 'Get recent articles globally',
-        description: 'Get most recent articles globally. Use query parameters to filter results. Auth is optional',
+        description:
+          'Get most recent articles globally. Use query parameters to filter results. Auth is optional',
       },
     })
     .input(

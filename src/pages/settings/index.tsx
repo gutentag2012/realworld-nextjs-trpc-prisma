@@ -116,7 +116,11 @@ const Login: NextPage = () => {
                       placeholder="New Password"
                     />
                   </fieldset>
-                  <button className="btn btn-lg btn-primary pull-xs-right" type={'submit'} disabled={isLoading}>
+                  <button
+                    className="btn btn-lg btn-primary pull-xs-right"
+                    type={'submit'}
+                    disabled={isLoading}
+                  >
                     Update Settings
                   </button>
                 </fieldset>

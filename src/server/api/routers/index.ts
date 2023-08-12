@@ -12,8 +12,8 @@ export const appRouter = createTRPCRouter({
   favorites: favoritesRouter,
   profiles: profileRouter,
   tags: tagsRouter,
-  auth: authenticationRouter
-});
+  auth: authenticationRouter,
+})
 
 // export type definition of API
-export type AppRouter = typeof appRouter;
+export type AppRouter = typeof appRouter
