@@ -12,7 +12,7 @@ export const AddCommentForm: FC<CommentFormProps> = ({
   slug,
 }) => {
   const ctx = api.useContext()
-  const { mutate: addComment } = api.comments.addCommentToArticle.useMutation({
+  const { mutate: addComment, isLoading } = api.comments.addCommentToArticle.useMutation({
     onSuccess: () => ctx.comments.getCommentsForArticle.invalidate(),
   })
 
@@ -40,6 +40,7 @@ export const AddCommentForm: FC<CommentFormProps> = ({
           className="form-control"
           placeholder="Write a comment..."
           rows={3}
+          disabled={isLoading}
           name="comment"
         />
       </div>
@@ -53,7 +54,7 @@ export const AddCommentForm: FC<CommentFormProps> = ({
             height={30}
           />
         )}
-        <button className="btn btn-sm btn-primary" type="submit">
+        <button className="btn btn-sm btn-primary" type="submit" disabled={isLoading}>
           Post Comment
         </button>
       </div>

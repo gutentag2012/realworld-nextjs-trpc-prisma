@@ -1,3 +1,43 @@
 @import url('//code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css');
 @import url('//fonts.googleapis.com/css?family=Titillium+Web:700|Source+Serif+Pro:400,700|Merriweather+Sans:400,700|Source+Sans+Pro:400,300,600,700,300italic,400italic,600italic,700italic');
 @import url('//demo.productionready.io/main.css');
+
+.spinner {
+    --color: black;
+    --size: 24px;
+
+    display: inline-block;
+    position: relative;
+    width: var(--size);
+    height: var(--size);
+}
+.spinner div {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: var(--size);
+    height: var(--size);
+    border-width: calc(var(--size) / 8);
+    border-style: solid;
+    border-radius: 50%;
+    animation: spinner 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-color: var(--color) transparent transparent transparent;
+}
+.spinner div:nth-child(1) {
+    animation-delay: -0.45s;
+}
+.spinner div:nth-child(2) {
+    animation-delay: -0.3s;
+}
+.spinner div:nth-child(3) {
+    animation-delay: -0.15s;
+}
+@keyframes spinner {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+

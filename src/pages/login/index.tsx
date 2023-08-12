@@ -1,4 +1,4 @@
-import { api, setToken, useIsLoggedIn } from '$/lib/api'
+import { api, isLoggedIn, setToken } from '$/lib/api'
 import { getErrorArrayFromTrpcResponseError } from '$/lib/errors'
 import { type NextPage } from 'next'
 import Link from 'next/link'
@@ -13,7 +13,6 @@ const LoginSchema = z.object({
 
 const Login: NextPage = () => {
   const { push } = useRouter()
-  const isLoggedIn = useIsLoggedIn()
 
   // Actions
   const {
@@ -30,11 +29,11 @@ const Login: NextPage = () => {
 
   // If the user is already logged in, redirect to the home page
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!isLoggedIn()) {
       return
     }
     push('/').catch(console.error)
-  }, [isLoggedIn, push])
+  }, [push])
 
   const errors = getErrorArrayFromTrpcResponseError(error, isError)
 

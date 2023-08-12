@@ -1,6 +1,6 @@
-import { api, setToken } from '$/lib/api'
+import { Layout } from '$/components/Layout'
+import { api, isLoggedIn, setToken } from '$/lib/api'
 import { getErrorArrayFromTrpcResponseError } from '$/lib/errors'
-import { Layout } from '$/pages/Layout'
 import { type NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { z } from 'zod'
@@ -18,7 +18,9 @@ const Login: NextPage = () => {
   const { push } = useRouter()
 
   // Data
-  const { data: userData } = api.auth.me.useQuery()
+  const { data: userData } = api.auth.me.useQuery(undefined, {
+    enabled: isLoggedIn(),
+  })
   const user = userData?.user
 
   // Actions

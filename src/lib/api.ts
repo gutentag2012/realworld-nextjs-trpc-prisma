@@ -10,7 +10,6 @@ import type { AppRouter } from '$/server/api/routers'
 import { httpBatchLink, loggerLink } from '@trpc/client'
 import { createTRPCNext } from '@trpc/next'
 import { type inferRouterError, type inferRouterOutputs } from '@trpc/server'
-import { useEffect, useState } from 'react'
 import superjson from 'superjson'
 
 export const setToken = (newToken: string | null) => {
@@ -20,17 +19,10 @@ export const setToken = (newToken: string | null) => {
   window.sessionStorage.setItem('token', newToken ?? '')
 }
 
-export const useIsLoggedIn = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null)
+export const getToken = () =>
+  typeof window === 'undefined' ? null : window.sessionStorage.getItem('token')
 
-  useEffect(() => {
-    const newToken =
-      (typeof window === 'undefined' ? null : window.sessionStorage.getItem('token')) ?? null
-    setIsLoggedIn(!!newToken)
-  }, [])
-
-  return isLoggedIn
-}
+export const isLoggedIn = () => !!getToken()
 
 const getBaseUrl = () => {
   if (typeof window !== 'undefined') {
@@ -39,12 +31,13 @@ const getBaseUrl = () => {
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`
   } // SSR should use vercel url
-  return `http://localhost:${process.env.PORT ?? 3000}` // dev SSR should use localhost
+  return `http://127.0.0.1:${process.env.PORT ?? 3000}` // dev SSR should use localhost
 }
 
 /** A set of type-safe react-query hooks for your tRPC API. */
 export const api = createTRPCNext<AppRouter>({
-  config() {
+  config(opts) {
+    const ctx = opts?.ctx
     return {
       /**
        * Transformer used for data de-serialization from the server.
@@ -67,10 +60,10 @@ export const api = createTRPCNext<AppRouter>({
         httpBatchLink({
           url: `${getBaseUrl()}/api/trpc`,
           headers() {
-            const token =
-              (typeof window === 'undefined' ? null : window.sessionStorage.getItem('token')) ??
-              null
+            const token = getToken()
+            const headers = ctx?.req?.headers ?? {}
             return {
+              ...headers,
               ...(token ? { Authorization: `Token ${token}` } : {}),
             }
           },

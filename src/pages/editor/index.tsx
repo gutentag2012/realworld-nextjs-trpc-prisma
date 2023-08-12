@@ -1,7 +1,7 @@
 import { CreateOrUpdateArticleForm } from '$/components/article/CreateOrUpdateArticleForm'
+import { Layout } from '$/components/Layout'
 import { api } from '$/lib/api'
 import { getErrorArrayFromTrpcResponseError } from '$/lib/errors'
-import { Layout } from '$/pages/Layout'
 import { type NextPage } from 'next'
 import { useRouter } from 'next/router'
 

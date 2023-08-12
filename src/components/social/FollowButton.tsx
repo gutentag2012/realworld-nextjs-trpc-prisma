@@ -1,4 +1,4 @@
-import { api, type RouterOutputs, useIsLoggedIn } from '$/lib/api'
+import { api, isLoggedIn, type RouterOutputs } from '$/lib/api'
 import { useRouter } from 'next/router'
 import React, { type FunctionComponent, type ReactNode } from 'react'
 
@@ -18,7 +18,6 @@ export const FollowButton: FunctionComponent<Props> = ({
   transformText = e => e,
 }) => {
   const { push } = useRouter()
-  const isLoggedIn = useIsLoggedIn()
 
   const { mutate: follow } = api.profiles.followProfile.useMutation({ onSuccess })
   const { mutate: unfollow } = api.profiles.unFollowProfile.useMutation({ onSuccess })
@@ -33,7 +32,7 @@ export const FollowButton: FunctionComponent<Props> = ({
         user.following ? 'btn-secondary' : 'btn-outline-secondary'
       } action-btn`}
       onClick={() => {
-        if (!isLoggedIn) {
+        if (!isLoggedIn()) {
           return push('/register')
         }
         const fn = user.following ? unfollow : follow

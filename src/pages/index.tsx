@@ -1,13 +1,13 @@
 import { ArticleListTabs } from '$/components/article/ArticleListTabs'
+import { Layout } from '$/components/Layout'
 import { QueryLink } from '$/components/util/QueryLink'
-import { Layout } from '$/pages/Layout'
-import { api, useIsLoggedIn } from '$/lib/api'
+import { Spinner } from '$/components/util/Spinner'
+import { api, isLoggedIn } from '$/lib/api'
 import { type NextPage } from 'next'
 import { useSearchParams } from 'next/navigation'
 
 const Home: NextPage = () => {
   const searchParams = useSearchParams()
-  const isLoggedIn = useIsLoggedIn()
 
   const selectedTag = searchParams.get('tag') ?? undefined
 
@@ -29,7 +29,7 @@ const Home: NextPage = () => {
           <div className="row">
             <ArticleListTabs
               className="col-md-9"
-              tabs={[!!isLoggedIn && 'feed', 'global']}
+              tabs={[isLoggedIn() && 'feed', 'global']}
               defaultTab="global"
               toggleClassName="feed-toggle"
             />
@@ -40,13 +40,13 @@ const Home: NextPage = () => {
 
                 <div className="tag-list">
                   {isLoadingTags ? (
-                    <div>Loading...</div>
+                    <Spinner size={24} />
                   ) : (
                     tags?.tags?.map(tag => (
                       <QueryLink
                         key={tag}
                         className="tag-pill tag-default"
-                        query={{ feedType: tag === selectedTag ? '' : '#' + tag }}
+                        query={{ feedType: tag === selectedTag ? '' : `#${tag}` }}
                       >
                         {tag}
                       </QueryLink>

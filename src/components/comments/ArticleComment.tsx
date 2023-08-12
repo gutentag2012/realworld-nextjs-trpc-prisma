@@ -1,3 +1,4 @@
+import { Spinner } from '$/components/util/Spinner'
 import { api, type RouterOutputs } from '$/lib/api'
 import format from 'date-fns/format'
 import Image from 'next/image'
@@ -14,7 +15,7 @@ type Props = ArticleCommentProps
 
 export const ArticleComment: FunctionComponent<Props> = ({ comment, isOwnComment, slug }) => {
   const ctx = api.useContext()
-  const { mutate: removeComment } = api.comments.removeCommentFromArticle.useMutation({
+  const { mutate: removeComment, isLoading } = api.comments.removeCommentFromArticle.useMutation({
     onSuccess: () => ctx.comments.getCommentsForArticle.invalidate(),
   })
 
@@ -46,9 +47,16 @@ export const ArticleComment: FunctionComponent<Props> = ({ comment, isOwnComment
           {comment.author.username}
         </Link>
         <span className="date-posted">{format(new Date(comment.createdAt), 'MMM d, yyyy')}</span>
-        {isOwnComment && (
+        {isOwnComment && isLoading ? (
           <span className="mod-options">
-            <i className="ion-trash-a" onClick={() => removeComment({ slug, id: comment.id })} />
+            <Spinner />
+          </span>
+        ) : (
+          <span className="mod-options">
+            <i
+              className="ion-trash-a"
+              onClick={() => !isLoading && removeComment({ slug, id: comment.id })}
+            />
           </span>
         )}
       </div>

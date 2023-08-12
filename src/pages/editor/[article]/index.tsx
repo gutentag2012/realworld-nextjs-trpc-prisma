@@ -1,7 +1,8 @@
 import { CreateOrUpdateArticleForm } from '$/components/article/CreateOrUpdateArticleForm'
+import { Layout } from '$/components/Layout'
+import { Spinner } from '$/components/util/Spinner'
 import { api } from '$/lib/api'
 import { getErrorArrayFromTrpcResponseError } from '$/lib/errors'
-import { Layout } from '$/pages/Layout'
 import { type NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
@@ -43,7 +44,12 @@ const Editor: NextPage = () => {
         <div className="article-page">
           <div className="banner">
             <div className="container">
-              <h1>Loading...</h1>
+              <h1>
+                <span style={{ marginRight: 16 }}>
+                  <Spinner color="white" size={32} />
+                </span>
+                Loading...
+              </h1>
             </div>
           </div>
         </div>

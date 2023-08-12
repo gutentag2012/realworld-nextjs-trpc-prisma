@@ -1,4 +1,5 @@
-import { api, type RouterOutputs } from '$/lib/api'
+import { api, isLoggedIn, type RouterOutputs } from '$/lib/api'
+import { useRouter } from 'next/router'
 import React, { type FunctionComponent, type ReactNode } from 'react'
 
 interface FavoriteButtonProps {
@@ -16,6 +17,8 @@ export const FavoriteButton: FunctionComponent<Props> = ({
   onToggleFavorite,
   transformText = e => e,
 }) => {
+  const { push } = useRouter()
+
   const { mutate: addToFavorite } = api.favorites.addArticleAsFavorite.useMutation({
     onSuccess: res => onToggleFavorite?.(res.article),
   })
@@ -25,8 +28,11 @@ export const FavoriteButton: FunctionComponent<Props> = ({
 
   return (
     <button
-      className={'btn btn-outline-primary btn-sm' + (className ? ` ${className}` : '')}
+      className={`btn btn-outline-primary btn-sm${className ? ` ${className}` : ''}`}
       onClick={() => {
+        if (!isLoggedIn()) {
+          return push('/register')
+        }
         if (article.favorited) {
           removeFromFavorite({ slug: article.slug })
         } else {

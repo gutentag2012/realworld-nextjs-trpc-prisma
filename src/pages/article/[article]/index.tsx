@@ -1,8 +1,9 @@
 import { ArticleMeta } from '$/components/article/ArticleMeta'
 import { AddCommentForm } from '$/components/comments/AddCommentForm'
 import { ArticleComment } from '$/components/comments/ArticleComment'
-import { api } from '$/lib/api'
-import { Layout } from '$/pages/Layout'
+import { Layout } from '$/components/Layout'
+import { Spinner } from '$/components/util/Spinner'
+import { api, isLoggedIn } from '$/lib/api'
 import matter from 'gray-matter'
 import { type NextPage } from 'next'
 import Link from 'next/link'
@@ -19,7 +20,9 @@ const Article: NextPage = () => {
   const [articleHTML, setArticleHTML] = useState('')
 
   // Data
-  const { data: userData } = api.auth.me.useQuery()
+  const { data: userData } = api.auth.me.useQuery(undefined, {
+    enabled: isLoggedIn(),
+  })
   const user = userData?.user
 
   const {
@@ -27,13 +30,16 @@ const Article: NextPage = () => {
     isError,
     isLoading,
     refetch,
-  } = api.articles.getArticlesBySlug.useQuery({ slug: articleSlug })
+  } = api.articles.getArticlesBySlug.useQuery({ slug: articleSlug }, { enabled: !!articleSlug })
   const article = articleData?.article
 
   const { data: articleComments, isLoading: isLoadingComments } =
-    api.comments.getCommentsForArticle.useQuery({
-      slug: articleSlug,
-    })
+    api.comments.getCommentsForArticle.useQuery(
+      {
+        slug: articleSlug,
+      },
+      { enabled: !!articleSlug },
+    )
 
   // Actions
   const { mutate: deleteArticle } = api.articles.deleteArticle.useMutation({
@@ -67,7 +73,12 @@ const Article: NextPage = () => {
         <div className="article-page">
           <div className="banner">
             <div className="container">
-              <h1>Loading...</h1>
+              <h1>
+                <span style={{ marginRight: 16 }}>
+                  <Spinner color="white" size={32} />
+                </span>
+                Loading...
+              </h1>
             </div>
           </div>
         </div>

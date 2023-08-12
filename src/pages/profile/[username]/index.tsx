@@ -1,7 +1,7 @@
 import { ArticleListTabs } from '$/components/article/ArticleListTabs'
+import { Layout } from '$/components/Layout'
 import { FollowButton } from '$/components/social/FollowButton'
-import { api, useIsLoggedIn } from '$/lib/api'
-import { Layout } from '$/pages/Layout'
+import { api, isLoggedIn } from '$/lib/api'
 import { type NextPage } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -10,7 +10,6 @@ import React from 'react'
 
 const Login: NextPage = () => {
   const { query } = useRouter()
-  const isLoggedIn = useIsLoggedIn()
 
   const username = decodeURIComponent(query.username as string)
 
@@ -23,7 +22,7 @@ const Login: NextPage = () => {
   const profile = profileData?.profile
 
   // Check if this is the logged-in user's profile
-  const { data: { user: me } = {} } = api.auth.me.useQuery(undefined, { enabled: !!isLoggedIn })
+  const { data: { user: me } = {} } = api.auth.me.useQuery(undefined, { enabled: isLoggedIn() })
   const isOwnProfile = profile?.username === me?.username
 
   if (isLoading) {
