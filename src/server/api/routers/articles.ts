@@ -30,7 +30,7 @@ const paginationInputSchema = z.object({
 })
 
 const articleListSchema = z.object({
-  articles: z.array(articleSchema),
+  articles: articleSchema.array(),
   articlesCount: z.number(),
 })
 
@@ -179,7 +179,7 @@ export const articleRouter = createTRPCRouter({
       z.object({
         article: articleSchema
           .pick({ title: true, description: true, body: true })
-          .extend({ tagList: z.array(z.string()) }),
+          .extend({ tagList: z.string().array() }),
       }),
     )
     .output(z.object({ article: articleSchema }))

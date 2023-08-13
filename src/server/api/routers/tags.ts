@@ -18,7 +18,7 @@ export const tagsRouter = createTRPCRouter({
       },
     })
     .input(z.void())
-    .output(z.object({ tags: z.array(z.string()) }))
+    .output(z.object({ tags: z.string().array() }))
     .query(async ({ ctx }) => {
       const tags = await ctx.prisma.articelTags.findMany()
       return {

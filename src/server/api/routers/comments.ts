@@ -23,7 +23,7 @@ export const commentsRouter = createTRPCRouter({
       },
     })
     .input(z.object({ slug: z.string().nonempty() }))
-    .output(z.object({ comments: z.array(commentSchema) }))
+    .output(z.object({ comments: commentSchema.array() }))
     .query(async opts => {
       const { input, ctx } = opts
 
