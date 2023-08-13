@@ -8,9 +8,11 @@ import { z } from 'zod'
 const UserSchema = z.object({
   username: z.string(),
   description: z.string(),
+  // If the password should not change, it is not included in the request
+  password: z.string().transform(v => v || undefined),
   bio: z.string(),
-  image: z.string(),
-  password: z.string(),
+  // This field can be unset, but has to be null explicitly
+  image: z.string().transform(v => v || null),
 })
 
 const Login: NextPage = () => {

@@ -3,11 +3,10 @@ import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
 export const profileSchema = z.object({
-  id: z.string().optional(),
-  username: z.string(),
+  username: z.string().nonempty(),
   bio: z.string().nullish(),
   image: z.string().url().nullish(),
-  following: z.boolean().nullish().default(false),
+  following: z.boolean().optional().default(false),
 })
 
 export const profileRouter = createTRPCRouter({
@@ -22,7 +21,7 @@ export const profileRouter = createTRPCRouter({
         description: 'Get a profile of a user of the system. Auth is optional',
       },
     })
-    .input(z.object({ username: z.string().nonempty() }))
+    .input(profileSchema.pick({ username: true }))
     .output(z.object({ profile: profileSchema }))
     .query(async opts => {
       const { input, ctx } = opts
@@ -62,7 +61,7 @@ export const profileRouter = createTRPCRouter({
         description: 'Follow a user by username',
       },
     })
-    .input(z.object({ username: z.string().nonempty() }))
+    .input(profileSchema.pick({ username: true }))
     .output(z.object({ profile: profileSchema }))
     .mutation(async opts => {
       const { input, ctx } = opts
@@ -96,11 +95,7 @@ export const profileRouter = createTRPCRouter({
         description: 'Unfollow a user by username',
       },
     })
-    .input(
-      z.object({
-        username: z.string(),
-      }),
-    )
+    .input(profileSchema.pick({ username: true }))
     .output(z.object({ profile: profileSchema }))
     .mutation(async opts => {
       const { input, ctx } = opts

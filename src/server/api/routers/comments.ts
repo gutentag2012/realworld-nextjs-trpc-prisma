@@ -6,7 +6,7 @@ const commentSchema = z.object({
   id: z.number(),
   createdAt: z.date().transform(d => d.toISOString()),
   updatedAt: z.date().transform(d => d.toISOString()),
-  body: z.string(),
+  body: z.string().nonempty(),
   author: profileSchema,
 })
 
@@ -48,9 +48,7 @@ export const commentsRouter = createTRPCRouter({
     .input(
       z.object({
         slug: z.string().nonempty(),
-        comment: z.object({
-          body: z.string().nonempty(),
-        }),
+        comment: commentSchema.pick({ body: true }),
       }),
     )
     .output(z.object({ comment: commentSchema }))

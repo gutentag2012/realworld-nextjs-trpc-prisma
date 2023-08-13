@@ -6,12 +6,11 @@ import { type PrismaClient } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
-// Define the schema for the article object
 export const articleSchema = z.object({
-  slug: z.string(),
-  title: z.string(),
-  description: z.string(),
-  body: z.string(),
+  slug: z.string().nonempty(),
+  title: z.string().nonempty(),
+  description: z.string().nonempty(),
+  body: z.string().nonempty(),
   tagList: z
     .array(tagsSchema)
     .nullish()
@@ -35,7 +34,7 @@ const articleListSchema = z.object({
   articlesCount: z.number(),
 })
 
-async function generateUniqueSlug(title: string, prisma: PrismaClient): Promise<string> {
+async function generateUniqueSlug(title: string, prisma: PrismaClient) {
   const slug = title.toLowerCase().replace(/\s/g, '-')
   const similarSlugCount = await prisma.article.count({
     where: { slug: { startsWith: slug } },
@@ -178,12 +177,9 @@ export const articleRouter = createTRPCRouter({
     })
     .input(
       z.object({
-        article: z.object({
-          title: z.string().min(1),
-          description: z.string().min(1),
-          body: z.string().min(1),
-          tagList: z.array(z.string()),
-        }),
+        article: articleSchema
+          .pick({ title: true, description: true, body: true })
+          .extend({ tagList: z.array(z.string()) }),
       }),
     )
     .output(z.object({ article: articleSchema }))
@@ -236,7 +232,7 @@ export const articleRouter = createTRPCRouter({
         description: 'Get an article. Auth not required',
       },
     })
-    .input(z.object({ slug: z.string() }))
+    .input(z.object({ slug: z.string().nonempty() }))
     .output(z.object({ article: articleSchema }))
     .query(async opts => {
       const { input, ctx } = opts
@@ -292,12 +288,8 @@ export const articleRouter = createTRPCRouter({
     })
     .input(
       z.object({
-        slug: z.string(),
-        article: z.object({
-          title: z.string().nullish().optional(),
-          description: z.string().nullish().optional(),
-          body: z.string().nullish().optional(),
-        }),
+        slug: z.string().nonempty(),
+        article: articleSchema.pick({ title: true, description: true, body: true }).partial(),
       }),
     )
     .output(z.object({ article: articleSchema }))
@@ -357,11 +349,7 @@ export const articleRouter = createTRPCRouter({
         description: 'Delete an article. Auth is required',
       },
     })
-    .input(
-      z.object({
-        slug: z.string(),
-      }),
-    )
+    .input(z.object({ slug: z.string().nonempty() }))
     .output(z.void())
     .mutation(async opts => {
       const { input, ctx } = opts

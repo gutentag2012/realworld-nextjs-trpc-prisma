@@ -8,18 +8,12 @@ import { z } from 'zod'
 
 export const userSchema = z.object({
   email: z.string().email(),
-  token: z.string(),
-  username: z.string(),
-  bio: z.string().nullish(),
+  username: z.string().nonempty(),
+  token: z.string().nonempty(),
+  bio: z.string().nonempty().nullish(),
   image: z.string().url().nullish(),
 })
-export const userUpdateSchema = z.object({
-  email: z.string().nonempty().email().optional(),
-  username: z.string().nonempty().optional(),
-  password: z.string().optional(),
-  bio: z.string().nullish().optional(),
-  image: z.string().url().nullish().optional().or(z.string().max(0)),
-})
+const userSchemaWithPassword = userSchema.extend({ password: z.string().min(8) })
 
 export const authenticationRouter = createTRPCRouter({
   login: publicProcedure
@@ -35,10 +29,7 @@ export const authenticationRouter = createTRPCRouter({
     })
     .input(
       z.object({
-        user: z.object({
-          email: z.string().email().min(1),
-          password: z.string().min(8),
-        }),
+        user: userSchemaWithPassword.pick({ email: true, password: true }),
       }),
     )
     .output(z.object({ user: userSchema }))
@@ -85,11 +76,7 @@ export const authenticationRouter = createTRPCRouter({
     })
     .input(
       z.object({
-        user: z.object({
-          username: z.string(),
-          email: z.string(),
-          password: z.string(),
-        }),
+        user: userSchemaWithPassword.pick({ username: true, email: true, password: true }),
       }),
     )
     .output(z.object({ user: userSchema }))
@@ -169,7 +156,7 @@ export const authenticationRouter = createTRPCRouter({
         description: 'Updated user information for current user',
       },
     })
-    .input(userUpdateSchema)
+    .input(userSchemaWithPassword.partial())
     .output(z.object({ user: userSchema }))
     .mutation(async opts => {
       const { input, ctx } = opts
@@ -203,14 +190,13 @@ export const authenticationRouter = createTRPCRouter({
         })
       }
 
-      const passwordHash = input.password ? await hash(input.password, 10) : undefined
       const updatedUser = await ctx.prisma.user.update({
         where: { id: ctx.user.id },
         data: {
-          username: input.username || undefined,
-          email: input.email || undefined,
+          username: input.username,
+          email: input.email,
           bio: input.bio,
-          passwordHash,
+          passwordHash: input.password && (await hash(input.password, 10)),
           image: input.image || null,
         },
       })
