@@ -7,8 +7,8 @@ import { z } from 'zod'
 
 const UserSchema = z.object({
   username: z.string(),
-  description: z.string(),
   // If the password should not change, it is not included in the request
+  email: z.string(),
   password: z.string().transform(v => v || undefined),
   bio: z.string(),
   // This field can be unset, but has to be null explicitly
@@ -37,7 +37,7 @@ const Login: NextPage = () => {
     return (
       <Layout privateRoute>
         <div className="settings-page">
-          <div className="container page">Not logged in</div>
+          <div className="page container">Not logged in</div>
         </div>
       </Layout>
     )
@@ -48,7 +48,7 @@ const Login: NextPage = () => {
   return (
     <Layout privateRoute>
       <div className="settings-page">
-        <div className="container page">
+        <div className="page container">
           <div className="row">
             <div className="col-md-6 offset-md-3 col-xs-12">
               <h1 className="text-xs-center">Your Settings</h1>
