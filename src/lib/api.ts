@@ -10,19 +10,40 @@ import type { AppRouter } from '$/server/api/routers'
 import { httpBatchLink, loggerLink } from '@trpc/client'
 import { createTRPCNext } from '@trpc/next'
 import { type inferRouterError, type inferRouterOutputs } from '@trpc/server'
+import { useEffect, useState } from 'react'
 import superjson from 'superjson'
+
+const TokenUpdatedEventKey = 'token:updated'
 
 export const setToken = (newToken: string | null) => {
   if (typeof window === 'undefined') {
     return
   }
+  window.dispatchEvent(new CustomEvent(TokenUpdatedEventKey))
   window.sessionStorage.setItem('token', newToken ?? '')
 }
 
 export const getToken = () =>
   typeof window === 'undefined' ? null : window.sessionStorage.getItem('token')
 
-export const isLoggedIn = () => !!getToken()
+export const useIsLoggedIn = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    const onTokenChange = () => {
+      setIsLoggedIn(!!getToken())
+    }
+
+    onTokenChange()
+
+    window.addEventListener(TokenUpdatedEventKey, onTokenChange)
+    return () => {
+      window.removeEventListener(TokenUpdatedEventKey, onTokenChange)
+    }
+  }, [setIsLoggedIn])
+
+  return isLoggedIn
+}
 
 const getBaseUrl = () => {
   if (typeof window !== 'undefined') {

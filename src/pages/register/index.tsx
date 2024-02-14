@@ -1,4 +1,4 @@
-import { api, isLoggedIn, setToken } from '$/lib/api'
+import { api, setToken, useIsLoggedIn } from '$/lib/api'
 import { getErrorArrayFromTrpcResponseError } from '$/lib/errors'
 import { type NextPage } from 'next'
 import Link from 'next/link'
@@ -14,12 +14,14 @@ const RegisterSchema = z.object({
 
 const Login: NextPage = () => {
   const { push } = useRouter()
+  const isLoggedIn = useIsLoggedIn()
 
   useEffect(() => {
-    if (isLoggedIn()) {
-      push('/').catch(console.error)
+    if (!isLoggedIn) {
+      return
     }
-  }, [push])
+    push('/').catch(console.error)
+  }, [push, isLoggedIn])
 
   const {
     mutate: register,

@@ -3,7 +3,7 @@ import { AddCommentForm } from '$/components/comments/AddCommentForm'
 import { ArticleComment } from '$/components/comments/ArticleComment'
 import { Layout } from '$/components/Layout'
 import { Spinner } from '$/components/util/Spinner'
-import { api, isLoggedIn } from '$/lib/api'
+import { api, useIsLoggedIn } from '$/lib/api'
 import matter from 'gray-matter'
 import { type NextPage } from 'next'
 import Link from 'next/link'
@@ -13,6 +13,7 @@ import { remark } from 'remark'
 import html from 'remark-html'
 
 const Article: NextPage = () => {
+  const isLoggedIn = useIsLoggedIn()
   const { query, push } = useRouter()
   const articleSlug = query.article as string
 
@@ -21,7 +22,7 @@ const Article: NextPage = () => {
 
   // Data
   const { data: userData } = api.auth.me.useQuery(undefined, {
-    enabled: isLoggedIn(),
+    enabled: isLoggedIn,
   })
   const user = userData?.user
 

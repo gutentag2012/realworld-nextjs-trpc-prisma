@@ -2,7 +2,7 @@ import ArticleListEntry from '$/components/article/ArticleListEntry'
 import { Pagination, usePagination } from '$/components/util/Pagination'
 import { QueryLink } from '$/components/util/QueryLink'
 import { Spinner } from '$/components/util/Spinner'
-import { api, isLoggedIn } from '$/lib/api'
+import { api, useIsLoggedIn } from '$/lib/api'
 import { useSearchParams } from 'next/navigation'
 import { type FunctionComponent, useMemo } from 'react'
 
@@ -34,6 +34,7 @@ export const ArticleListTabs: FunctionComponent<Props> = ({
   className,
   toggleClassName,
 }) => {
+  const isLoggedIn = useIsLoggedIn()
   const searchParams = useSearchParams()
 
   const pagination = usePagination()
@@ -67,7 +68,7 @@ export const ArticleListTabs: FunctionComponent<Props> = ({
     isLoading: isLoadingFeedArticles,
     refetch: refetchFeed,
   } = api.articles.getArticleFeed.useQuery(pagination, {
-    enabled: selectedFeedType === 'feed' && isLoggedIn(),
+    enabled: selectedFeedType === 'feed' && isLoggedIn,
   })
 
   const { articles, isLoadingArticles, refetch } = useMemo(() => {

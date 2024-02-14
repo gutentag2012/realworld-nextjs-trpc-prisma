@@ -2,11 +2,12 @@ import { ArticleListTabs } from '$/components/article/ArticleListTabs'
 import { Layout } from '$/components/Layout'
 import { QueryLink } from '$/components/util/QueryLink'
 import { Spinner } from '$/components/util/Spinner'
-import { api, isLoggedIn } from '$/lib/api'
+import { api, useIsLoggedIn } from '$/lib/api'
 import { type NextPage } from 'next'
 import { useSearchParams } from 'next/navigation'
 
 const Home: NextPage = () => {
+  const isLoggedInVal = useIsLoggedIn()
   const searchParams = useSearchParams()
 
   const selectedTag = searchParams.get('tag') ?? undefined
@@ -29,7 +30,7 @@ const Home: NextPage = () => {
           <div className="row">
             <ArticleListTabs
               className="col-md-9"
-              tabs={[isLoggedIn() && 'feed', 'global']}
+              tabs={[isLoggedInVal && 'feed', 'global']}
               defaultTab="global"
               toggleClassName="feed-toggle"
             />
