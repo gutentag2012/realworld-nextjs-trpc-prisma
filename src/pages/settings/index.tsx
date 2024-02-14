@@ -1,5 +1,5 @@
 import { Layout } from '$/components/Layout'
-import { api, isLoggedIn, setToken } from '$/lib/api'
+import { api, setToken, useIsLoggedIn } from '$/lib/api'
 import { getErrorArrayFromTrpcResponseError } from '$/lib/errors'
 import { type NextPage } from 'next'
 import { useRouter } from 'next/router'
@@ -18,10 +18,11 @@ const UserSchema = z.object({
 const Login: NextPage = () => {
   const ctx = api.useContext()
   const { push } = useRouter()
+  const isLoggedIn = useIsLoggedIn()
 
   // Data
   const { data: userData } = api.auth.me.useQuery(undefined, {
-    enabled: isLoggedIn(),
+    enabled: isLoggedIn,
   })
   const user = userData?.user
 

@@ -26,8 +26,6 @@ export const setToken = (newToken: string | null) => {
 export const getToken = () =>
   typeof window === 'undefined' ? null : window.sessionStorage.getItem('token')
 
-export const isLoggedIn = () => !!getToken()
-
 export const useIsLoggedIn = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 

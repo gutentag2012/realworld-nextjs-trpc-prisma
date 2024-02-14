@@ -1,7 +1,7 @@
 'use client'
 // noinspection JSUnresolvedLibraryURL
 
-import { api, isLoggedIn } from '$/lib/api'
+import { api, useIsLoggedIn } from '$/lib/api'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -29,11 +29,12 @@ export const Layout: FunctionComponent<Props> = ({
   restrictForUsername,
   title,
 }) => {
+  const isLoggedIn = useIsLoggedIn()
   const { push, pathname } = useRouter()
 
   // Get current user
   const { data: { user } = {}, isLoading } = api.auth.me.useQuery(undefined, {
-    enabled: isLoggedIn(),
+    enabled: isLoggedIn,
   })
 
   // If this is a private route and the user is not logged in, redirect to the login page
