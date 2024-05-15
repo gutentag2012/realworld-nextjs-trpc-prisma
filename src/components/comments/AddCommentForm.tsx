@@ -11,7 +11,7 @@ export const AddCommentForm: FC<CommentFormProps> = ({
   currentUser: { image, username },
   slug,
 }) => {
-  const ctx = api.useContext()
+  const ctx = api.useUtils()
   const { mutate: addComment, isLoading } = api.comments.addCommentToArticle.useMutation({
     onSuccess: () => ctx.comments.getCommentsForArticle.invalidate(),
   })
