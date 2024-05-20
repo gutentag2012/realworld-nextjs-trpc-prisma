@@ -14,7 +14,7 @@ interface ArticleCommentProps {
 type Props = ArticleCommentProps
 
 export const ArticleComment: FunctionComponent<Props> = ({ comment, isOwnComment, slug }) => {
-  const ctx = api.useContext()
+  const ctx = api.useUtils()
   const { mutate: removeComment, isLoading } = api.comments.removeCommentFromArticle.useMutation({
     onSuccess: () => ctx.comments.getCommentsForArticle.invalidate(),
   })

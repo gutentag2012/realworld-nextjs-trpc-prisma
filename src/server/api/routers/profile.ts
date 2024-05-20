@@ -3,7 +3,7 @@ import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
 export const profileSchema = z.object({
-  username: z.string().nonempty(),
+  username: z.string().min(1),
   bio: z.string().nullish(),
   image: z.string().url().nullish(),
   following: z.boolean().optional().default(false),

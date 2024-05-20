@@ -16,7 +16,7 @@ const UserSchema = z.object({
 })
 
 const Login: NextPage = () => {
-  const ctx = api.useContext()
+  const ctx = api.useUtils()
   const { push } = useRouter()
   const isLoggedIn = useIsLoggedIn()
 

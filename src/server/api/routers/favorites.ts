@@ -14,7 +14,7 @@ export const favoritesRouter = createTRPCRouter({
         description: 'Favorites an article. Auth is required',
       },
     })
-    .input(z.object({ slug: z.string().nonempty() }))
+    .input(z.object({ slug: z.string().min(1) }))
     .output(z.object({ article: articleSchema }))
     .mutation(async opts => {
       const { input, ctx } = opts
@@ -46,7 +46,7 @@ export const favoritesRouter = createTRPCRouter({
         description: 'Unfavorite an article. Auth is required',
       },
     })
-    .input(z.object({ slug: z.string().nonempty() }))
+    .input(z.object({ slug: z.string().min(1) }))
     .output(z.object({ article: articleSchema }))
     .mutation(async opts => {
       const { input, ctx } = opts

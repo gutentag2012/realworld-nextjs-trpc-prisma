@@ -8,9 +8,9 @@ import { z } from 'zod'
 
 export const userSchema = z.object({
   email: z.string().email(),
-  username: z.string().nonempty(),
-  token: z.string().nonempty(),
-  bio: z.string().nonempty().nullish(),
+  username: z.string().min(1),
+  token: z.string().min(1),
+  bio: z.string().min(1).nullish(),
   image: z.string().url().nullish(),
 })
 const userSchemaWithPassword = userSchema.extend({ password: z.string().min(8) })

@@ -6,7 +6,7 @@ const commentSchema = z.object({
   id: z.number(),
   createdAt: z.date().transform(d => d.toISOString()),
   updatedAt: z.date().transform(d => d.toISOString()),
-  body: z.string().nonempty(),
+  body: z.string().min(1),
   author: profileSchema,
 })
 
@@ -22,7 +22,7 @@ export const commentsRouter = createTRPCRouter({
         description: 'Get the comments for an article. Auth is optional',
       },
     })
-    .input(z.object({ slug: z.string().nonempty() }))
+    .input(z.object({ slug: z.string().min(1) }))
     .output(z.object({ comments: commentSchema.array() }))
     .query(async opts => {
       const { input, ctx } = opts
@@ -47,7 +47,7 @@ export const commentsRouter = createTRPCRouter({
     })
     .input(
       z.object({
-        slug: z.string().nonempty(),
+        slug: z.string().min(1),
         comment: commentSchema.pick({ body: true }),
       }),
     )
@@ -82,7 +82,7 @@ export const commentsRouter = createTRPCRouter({
     })
     .input(
       z.object({
-        slug: z.string().nonempty(),
+        slug: z.string().min(1),
         id: z.number(),
       }),
     )

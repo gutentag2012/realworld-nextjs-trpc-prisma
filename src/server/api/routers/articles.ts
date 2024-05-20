@@ -7,10 +7,10 @@ import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
 export const articleSchema = z.object({
-  slug: z.string().nonempty(),
-  title: z.string().nonempty(),
-  description: z.string().nonempty(),
-  body: z.string().nonempty(),
+  slug: z.string().min(1),
+  title: z.string().min(1),
+  description: z.string().min(1),
+  body: z.string().min(1),
   tagList: z
     .array(tagsSchema)
     .nullish()
@@ -232,7 +232,7 @@ export const articleRouter = createTRPCRouter({
         description: 'Get an article. Auth not required',
       },
     })
-    .input(z.object({ slug: z.string().nonempty() }))
+    .input(z.object({ slug: z.string().min(1) }))
     .output(z.object({ article: articleSchema }))
     .query(async opts => {
       const { input, ctx } = opts
@@ -288,7 +288,7 @@ export const articleRouter = createTRPCRouter({
     })
     .input(
       z.object({
-        slug: z.string().nonempty(),
+        slug: z.string().min(1),
         article: articleSchema.pick({ title: true, description: true, body: true }).partial(),
       }),
     )
@@ -349,7 +349,7 @@ export const articleRouter = createTRPCRouter({
         description: 'Delete an article. Auth is required',
       },
     })
-    .input(z.object({ slug: z.string().nonempty() }))
+    .input(z.object({ slug: z.string().min(1) }))
     .output(z.void())
     .mutation(async opts => {
       const { input, ctx } = opts
