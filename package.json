@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate && prisma db push",
-    "db:seed": "prisma seed",
+    "db:seed": "prisma db seed",
     "test:api": "./tests/api/run-api-tests.sh",
     "test:ui": "pnpm exec playwright test"
   },
