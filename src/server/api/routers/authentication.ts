@@ -10,7 +10,7 @@ export const userSchema = z.object({
   email: z.string().email(),
   username: z.string().min(1),
   token: z.string().min(1),
-  bio: z.string().min(1).nullish(),
+  bio: z.string().nullish(),
   image: z.string().url().nullish(),
 })
 const userSchemaWithPassword = userSchema.extend({ password: z.string().min(8) })
