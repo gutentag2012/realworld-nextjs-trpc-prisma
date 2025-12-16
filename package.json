@@ -19,7 +19,7 @@
     "@trpc/client": "^10.45.1",
     "@trpc/next": "^10.45.1",
     "@trpc/react-query": "^10.45.1",
-    "@trpc/server": "^10.45.1",
+    "@trpc/server": "^10.45.3",
     "bcrypt": "^5.1.1",
     "date-fns": "^2.30.0",
     "gray-matter": "^4.0.3",
